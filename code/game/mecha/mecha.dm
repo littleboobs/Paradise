@@ -121,6 +121,9 @@
 	///Is mecha strafing currently
 	var/strafe = FALSE
 
+	///Mech subtype. Currently used in paintkits.
+	var/mech_type = MECH_TYPE_NONE
+
 	hud_possible = list (DIAG_STAT_HUD, DIAG_BATT_HUD, DIAG_MECH_HUD, DIAG_TRACK_HUD)
 
 /obj/mecha/Initialize()
@@ -246,28 +249,34 @@
 		if(!target)
 			return
 	var/mob/living/L = user
-	if(!target.Adjacent(src))
-		if(selected && selected.is_ranged())
-			if(HAS_TRAIT(L, TRAIT_PACIFISM) && selected.harmful)
-				to_chat(L, span_warning("You don't want to harm other living beings!"))
-				return
-			if(user.mind?.martial_art?.no_guns)
-				to_chat(L, span_warning("[L.mind.martial_art.no_guns_message]"))
-				return
+	if(selected && selected.is_ranged())
+		if(HAS_TRAIT(L, TRAIT_PACIFISM) && selected.harmful)
+			to_chat(L, span_warning("You don't want to harm other living beings!"))
+			return
+		if(user.mind?.martial_art?.no_guns)
+			to_chat(L, span_warning("[L.mind.martial_art.no_guns_message]"))
+			return
+		if(!target.Adjacent(src))
 			selected.action(target, params)
+			return
+		else
+			if(L.a_intent == INTENT_HELP) // point blank shooting
+				selected.action(target, params)
+				return
 	else if(selected && selected.is_melee())
 		if(isliving(target) && selected.harmful && HAS_TRAIT(L, TRAIT_PACIFISM))
 			to_chat(user, span_warning("You don't want to harm other living beings!"))
 			return
 		selected.action(target, params)
-	else
-		if(internal_damage & MECHA_INT_CONTROL_LOST)
-			target = safepick(oview(1, src))
-		if(!melee_can_hit || !isatom(target))
-			return
-		target.mech_melee_attack(src)
-		melee_can_hit = FALSE
-		addtimer(CALLBACK(src, PROC_REF(melee_hit_ready)), melee_cooldown)
+		return
+
+	if(internal_damage & MECHA_INT_CONTROL_LOST)
+		target = safepick(oview(1, src))
+	if(!melee_can_hit || !isatom(target))
+		return
+	target.mech_melee_attack(src)
+	melee_can_hit = FALSE
+	addtimer(CALLBACK(src, PROC_REF(melee_hit_ready)), melee_cooldown)
 
 /obj/mecha/proc/melee_hit_ready()
 	melee_can_hit = TRUE
@@ -421,7 +430,10 @@
 		move_result = mechsteprand()
 		move_type = MECHAMOVE_RAND
 	else if(direction & (UP|DOWN))
-		var/turf/above = GET_TURF_ABOVE(loc)
+		var/turf/T = get_turf(loc)
+		if(!isturf(T))
+			return
+		var/turf/above = GET_TURF_ABOVE(T)
 		if(!(direction & UP) || !can_z_move(DOWN, above, null, ZMOVE_FALL_FLAGS|ZMOVE_CAN_FLY_CHECKS|ZMOVE_FEEDBACK, occupant))
 			if(zMove(direction, z_move_flags = ZMOVE_FLIGHT_FLAGS))
 				playsound(src, stepsound, 40, 1)
@@ -559,7 +571,7 @@
 
 	else if(isliving(bumped_atom))
 		var/mob/living/bumped_living = bumped_atom
-		if(bumped_living.flags & GODMODE)
+		if(HAS_TRAIT(bumped_living, TRAIT_GODMODE))
 			return
 		var/static/list/mecha_hit_sound = list('sound/weapons/genhit1.ogg','sound/weapons/genhit2.ogg','sound/weapons/genhit3.ogg')
 		bumped_living.take_overall_damage(5)
@@ -722,7 +734,8 @@
 
 /obj/mecha/blob_act(obj/structure/blob/B)
 	log_message("Attack by blob. Attacker - [B].")
-	take_damage(30, BRUTE, "melee", 0, get_dir(src, B))
+	B?.overmind?.blobstrain?.attack_mech(src)
+	take_damage(30, BRUTE, MELEE, 0, get_dir(src, B))
 
 /obj/mecha/attack_tk()
 	return
@@ -907,23 +920,26 @@
 		if(occupant)
 			to_chat(user, span_warning("You can't customize a mech while someone is piloting it - that would be unsafe!"))
 			return ATTACK_CHAIN_PROCEED
+
 		var/obj/item/paintkit/paintkit = I
-		var/found = FALSE
-		for(var/type in paintkit.allowed_types)
-			if(type == initial_icon)
-				found = TRUE
-				break
-		if(!found)
+		if(!(paintkit.allowed_types & mech_type))
 			to_chat(user, span_warning("This paintkit isn't meant for use on this class of exosuit."))
 			return ATTACK_CHAIN_PROCEED
+
 		if(!user.drop_transfer_item_to_loc(paintkit, src))
 			return ..()
 		user.visible_message(span_notice("[user] opens [paintkit] and spends some quality time customising [name]."))
-		if(paintkit.new_prefix)
-			initial_icon = "[paintkit.new_prefix][initial_icon]"
+
+		var/list/icon_states = paintkit.icon_states
+		var/transformed_mech_type = "[mech_type]"
+		if(transformed_mech_type in icon_states)
+			initial_icon = icon_states[transformed_mech_type]
 		else
 			initial_icon = paintkit.new_icon
-		name = paintkit.new_name
+		if(paintkit.name_prefix)
+			name = "[paintkit.name_prefix] [name]"
+		else
+			name = paintkit.new_name
 		desc = paintkit.new_desc
 		update_icon(UPDATE_ICON_STATE)
 		qdel(paintkit)
@@ -1396,37 +1412,50 @@
 /obj/mecha/proc/go_out(forced, atom/newloc = loc)
 	if(!occupant)
 		return
+
+	for(var/obj/item/mecha_parts/mecha_equipment/equipment_mod in equipment)
+		equipment_mod.handle_occupant_exit()
+
 	var/atom/movable/mob_container
+
 	occupant.clear_alert("charge")
 	occupant.clear_alert("locked")
 	occupant.clear_alert("mech damage")
 	occupant.clear_alert("mechaport")
 	occupant.clear_alert("mechaport_d")
+
 	if(occupant && occupant.client)
 		occupant.client.mouse_pointer_icon = initial(occupant.client.mouse_pointer_icon)
+
 	if(ishuman(occupant))
 		mob_container = occupant
 		RemoveActions(occupant, human_occupant = 1)
+
 	else if(isbrain(occupant))
 		var/mob/living/carbon/brain/brain = occupant
 		RemoveActions(brain)
 		mob_container = brain.container
+
 	else if(isAI(occupant))
 		var/mob/living/silicon/ai/AI = occupant
 		//stop listening to this signal, as the static update is now handled by the eyeobj's setLoc
 		AI.eyeobj?.UnregisterSignal(src, COMSIG_MOVABLE_MOVED)
 		AI.eyeobj?.forceMove(newloc) //kick the eye out as well
+
 		if(forced)//This should only happen if there are multiple AIs in a round, and at least one is Malf.
 			RemoveActions(occupant)
 			if(!istype(newloc, /obj/item/aicard))
 				occupant.gib()  //If one Malf decides to steal a mech from another AI (even other Malfs!), they are destroyed, as they have nowhere to go when replaced.
 				occupant = null
+
 			return
+
 		else
 			if(!AI.linked_core || QDELETED(AI.linked_core))
 				to_chat(AI, span_userdanger("Inactive core destroyed. Unable to return."))
 				AI.linked_core = null
 				return
+
 			to_chat(AI, span_notice("Returning to core..."))
 			AI.controlled_mech = null
 			AI.remote_control = null
@@ -1434,10 +1463,13 @@
 			mob_container = AI
 			newloc = get_turf(AI.linked_core)
 			qdel(AI.linked_core)
+
 	else
 		return
+
 	var/mob/living/L = occupant
 	occupant = null //we need it null when forceMove calls Exited().
+
 	if(mob_container.forceMove(newloc))//ejecting mob container
 		log_message("[mob_container] moved out.")
 		L << browse(null, "window=exosuit")
@@ -1447,12 +1479,15 @@
 			if(mmi.brainmob)
 				L.forceMove(mmi)
 				L.reset_perspective()
+
 			mmi.mecha = null
 			mmi.update_icon()
+
 			if(istype(mmi, /obj/item/mmi/robotic_brain))
 				var/obj/item/mmi/robotic_brain/R = mmi
 				if(R.imprinted_master)
 					to_chat(L, span_notice("Imprint re-enabled, you are once again bound to [R.imprinted_master]'s commands."))
+
 		update_icon(UPDATE_ICON_STATE)
 		dir = dir_in
 
@@ -1737,6 +1772,22 @@
 /obj/mecha/update_icon_state()
 	var/init_icon_state = initial_icon ? initial_icon : initial(icon_state)
 	icon_state = occupant ? init_icon_state : "[init_icon_state]-open"
+
+
+/obj/mecha/on_changed_z_level(turf/old_turf, turf/new_turf, same_z_layer, notify_contents)
+	. = ..()
+
+	if(!phasing || is_teleport_allowed(new_turf.z))
+		return
+
+	phasing = FALSE
+	occupant_message("<font color='#f00'>Phasing is malfunctioning.</font>")
+
+	if(!phasing_action.owner)
+		return
+
+	phasing_action.button_icon_state = "mech_phasing_off"
+	phasing_action.UpdateButtonIcon()
 
 
 #undef OCCUPANT_LOGGING

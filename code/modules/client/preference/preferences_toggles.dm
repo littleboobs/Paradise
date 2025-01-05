@@ -434,8 +434,8 @@
 	blackbox_message = "Set Own OOC"
 
 /datum/preference_toggle/special_toggle/set_ooc_color/set_toggles(client/user)
-	var/new_ooccolor = input(usr, "Please select your OOC color.", "OOC color", user.prefs.ooccolor) as color|null
-	if(new_ooccolor)
+	var/new_ooccolor = tgui_input_color(usr, "Please select your OOC color.", "OOC color", user.prefs.ooccolor)
+	if(!isnull(new_ooccolor))
 		user.prefs.ooccolor = new_ooccolor
 		to_chat(usr, "Your OOC color has been set to [new_ooccolor].")
 	else
@@ -533,7 +533,7 @@
 
 	for(var/group_key as anything in my_hud.master_groups)
 		var/datum/plane_master_group/group = my_hud.master_groups[group_key]
-		group.transform_lower_turfs(my_hud, my_hud.current_plane_offset)
+		group.build_planes_offset(my_hud, my_hud.current_plane_offset)
 
 /datum/preference_toggle/toggle_vote_popup
 	name = "Toggle Vote Popup"
@@ -580,3 +580,24 @@
     enable_message = "You will see full-size TGUI strip menu."
     disable_message = "You will see minuature TGUI strip menu."
     blackbox_message = "Toggle TGUI strip menu size"
+
+/datum/preference_toggle/toggle_item_descritpion_tips
+    name = "Toggle item description tips"
+    description = "Toggles item description tips on hover."
+    preftoggle_bitflag = PREFTOGGLE_2_DESC_TIPS
+    preftoggle_toggle = PREFTOGGLE_TOGGLE2
+    preftoggle_category = PREFTOGGLE_CATEGORY_LIVING
+    enable_message = "You will see item description tips now."
+    disable_message = "You will not see item description tips now."
+    blackbox_message = "Toggle item description tips on hover"
+
+/datum/preference_toggle/toggle_take_out_of_the_round_without_obj
+    name = "Вывод из игры без цели"
+    description = "Переключает разрешение другим игрокам выводить вас из раунда без соответствующей цели."
+    preftoggle_bitflag = PREFTOGGLE_2_GIB_WITHOUT_OBJECTIVE
+    preftoggle_toggle = PREFTOGGLE_TOGGLE2
+    preftoggle_category = PREFTOGGLE_CATEGORY_GENERAL
+    enable_message = "Другие игроки теперь имеют право выводить вас из раунда без цели."
+    disable_message = "Другие игроки больше не имеют права выводить вас из раунда без цели."
+    blackbox_message = "Переключение разрешения выводить игрока из раунда"
+

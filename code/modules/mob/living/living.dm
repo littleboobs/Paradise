@@ -7,6 +7,8 @@
 	faction += "\ref[src]"
 	determine_move_and_pull_forces()
 	gravity_setup()
+	if(unique_name)
+		set_name()
 	if(ventcrawler_trait)
 		var/static/list/ventcrawler_sanity = list(
 			TRAIT_VENTCRAWLER_ALWAYS,
@@ -546,21 +548,6 @@
 	return TRUE
 
 
-/mob/living/verb/succumb()
-	set hidden = 1
-	if(InCritical())
-		add_attack_logs(src, src, "has succumbed to death with [round(health, 0.1)] points of health")
-		adjustOxyLoss(health - HEALTH_THRESHOLD_DEAD)
-		// super check for weird mobs, including ones that adjust hp
-		// we don't want to go overboard and gib them, though
-		for(var/i = 1 to 5)
-			if(health < HEALTH_THRESHOLD_DEAD)
-				break
-			take_overall_damage(max(5, health - HEALTH_THRESHOLD_DEAD))
-		death()
-		to_chat(src, "<span class='notice'>You have given up life and succumbed to death.</span>")
-
-
 /mob/living/proc/InCritical()
 	return (health < HEALTH_THRESHOLD_CRIT && health > HEALTH_THRESHOLD_DEAD && stat == UNCONSCIOUS)
 
@@ -581,7 +568,7 @@
 		add_attack_logs(user, src, "set on fire with [I]")
 
 /mob/living/update_stat(reason = "none given", should_log = FALSE)
-	if(status_flags & GODMODE)
+	if(HAS_TRAIT(src, TRAIT_GODMODE))
 		set_stat(CONSCIOUS)
 	med_hud_set_health()
 	med_hud_set_status()
@@ -589,7 +576,7 @@
 	update_stamina_hud()
 	update_damage_hud()
 	if(should_log)
-		log_debug("[src] update_stat([reason][status_flags & GODMODE ? ", GODMODE" : ""])")
+		log_debug("[src] update_stat([reason][HAS_TRAIT(src, TRAIT_GODMODE) ? ", GODMODE" : ""])")
 
 
 ///Sets the current mob's health value. Do not call directly if you don't know what you are doing, use the damage procs, instead.
@@ -599,7 +586,7 @@
 
 
 /mob/living/proc/updatehealth(reason = "none given", should_log = FALSE)
-	if(status_flags & GODMODE)
+	if(HAS_TRAIT(src, TRAIT_GODMODE))
 		set_health(maxHealth)
 		update_stat("updatehealth([reason])", should_log)
 		return
@@ -771,6 +758,7 @@
 	ExtinguishMob()
 	CureAllDiseases(FALSE)
 	fire_stacks = 0
+	fire_stacks = 0
 	on_fire = 0
 	suiciding = 0
 	if(buckled) //Unbuckle the mob and clear the alerts.
@@ -888,36 +876,49 @@
 /mob/living/proc/makeTrail(turf/T)
 	if(!has_gravity())
 		return
-	var/blood_exists = 0
 
-	for(var/obj/effect/decal/cleanable/trail_holder/C in loc) //checks for blood splatter already on the floor
-		blood_exists = 1
+	var/blood_exists = FALSE
+
+	for(var/obj/effect/decal/cleanable/trail_holder/C in loc) // checks for blood splatter already on the floor
+		blood_exists = TRUE
+
 	if(isturf(loc))
 		var/trail_type = getTrail()
+
 		if(trail_type)
 			var/brute_ratio = round(getBruteLoss()/maxHealth, 0.1)
-			if(blood_volume && blood_volume > max(BLOOD_VOLUME_NORMAL*(1 - brute_ratio * 0.25), 0))//don't leave trail if blood volume below a threshold
-				blood_volume = max(blood_volume - max(1, brute_ratio * 2), 0) 					//that depends on our brute damage.
+
+			if(blood_volume && blood_volume > max(BLOOD_VOLUME_NORMAL*(1 - brute_ratio * 0.25), 0)) // don't leave trail if blood volume below a threshold
+				setBlood(max(blood_volume - max(1, brute_ratio * 2), 0)) // that depends on our brute damage.
 				var/newdir = get_dir(T, loc)
+
 				if(newdir != src.dir)
 					newdir = newdir | dir
+
 					if(newdir == 3) //N + S
 						newdir = NORTH
+
 					else if(newdir == 12) //E + W
 						newdir = EAST
+
 				if((newdir in GLOB.cardinal) && (prob(50)))
 					newdir = turn(get_dir(T, loc), 180)
+
 				if(!blood_exists)
 					new /obj/effect/decal/cleanable/trail_holder(loc)
+
 				for(var/obj/effect/decal/cleanable/trail_holder/TH in loc)
 					if((!(newdir in TH.existing_dirs) || trail_type == "trails_1" || trail_type == "trails_2") && TH.existing_dirs.len <= 16) //maximum amount of overlays is 16 (all light & heavy directions filled)
 						TH.existing_dirs += newdir
 						TH.overlays.Add(image('icons/effects/blood.dmi', trail_type, dir = newdir))
 						TH.transfer_mob_blood_dna(src)
+
 						if(ishuman(src))
 							var/mob/living/carbon/human/H = src
+
 							if(H.dna.species.blood_color)
 								TH.color = H.dna.species.blood_color
+
 						else
 							TH.color = "#A10808"
 
@@ -1263,7 +1264,7 @@
 
 //called when the mob receives a bright flash
 /mob/living/proc/flash_eyes(intensity = 1, override_blindness_check, affect_silicon, visual, type = /atom/movable/screen/fullscreen/flash)
-	if(status_flags & GODMODE)
+	if(HAS_TRAIT(src, TRAIT_GODMODE))
 		return FALSE
 	if(check_eye_prot() < intensity && (override_blindness_check || !HAS_TRAIT(src, TRAIT_BLIND)))
 		overlay_fullscreen("flash", type)
@@ -1642,35 +1643,6 @@
 				target.devoured(grabber)
 
 
-/mob/living/proc/update_z(new_z) // 1+ to register, null to unregister
-	if(registered_z == new_z)
-		return
-	if(registered_z)
-		SSmobs.clients_by_zlevel[registered_z] -= src
-	if(isnull(client))
-		registered_z = null
-		return
-	if(!new_z)
-		registered_z = new_z
-		return
-	//Figure out how many clients were here before
-	var/oldlen = SSmobs.clients_by_zlevel[new_z].len
-	SSmobs.clients_by_zlevel[new_z] += src
-	for(var/index in length(SSidlenpcpool.idle_mobs_by_zlevel[new_z]) to 1 step -1) //Backwards loop because we're removing (guarantees optimal rather than worst-case performance), it's fine to use .len here but doesn't compile on 511
-		var/mob/living/simple_animal/animal = SSidlenpcpool.idle_mobs_by_zlevel[new_z][index]
-		if(animal)
-			if(!oldlen)
-				//Start AI idle if nobody else was on this z level before (mobs will switch off when this is the case)
-				animal.toggle_ai(AI_IDLE)
-			//If they are also within a close distance ask the AI if it wants to wake up
-			if(get_dist(get_turf(src), get_turf(animal)) < MAX_SIMPLEMOB_WAKEUP_RANGE)
-				animal.consider_wakeup() // Ask the mob if it wants to turn on it's AI
-		//They should clean up in destroy, but often don't so we get them here
-		else
-			SSidlenpcpool.idle_mobs_by_zlevel[new_z] -= animal
-	registered_z = new_z
-
-
 /mob/living/on_changed_z_level(turf/old_turf, turf/new_turf, same_z_layer, notify_contents = TRUE)
 	..()
 	update_z(new_turf?.z)
@@ -1853,6 +1825,9 @@
 		return TRUE
 	return FALSE
 
+/mob/living/examine(mob/user, infix, suffix)
+	. = ..()
+	SEND_SIGNAL(src, COMSIG_LIVING_EXAMINE, user, .)
 
 /**
   * Sets the mob's direction lock towards a given atom.
@@ -2180,8 +2155,8 @@
 			update_blind_effects()
 			update_blurry_effects()
 			update_unconscious_overlay()
-			GLOB.alive_mob_list += src
-			GLOB.dead_mob_list -= src
+			add_to_alive_mob_list()
+			remove_from_dead_mob_list()
 
 	switch(stat) //Current stat.
 		if(CONSCIOUS)
@@ -2194,8 +2169,8 @@
 			SetLoseBreath(0)
 			SetDisgust(0)
 			SetEyeBlurry(0)
-			GLOB.alive_mob_list -= src
-			GLOB.dead_mob_list += src
+			remove_from_alive_mob_list()
+			add_to_dead_mob_list()
 
 
 /// Updates hands HUD element.
@@ -2267,8 +2242,79 @@
 
 	update_ssd_overlay()	// special SSD overlay handling
 
+/mob/living/verb/succumb()
+	set hidden = TRUE
+	// if you use the verb you better mean it
+	do_succumb(FALSE)
+
+/mob/living/proc/do_succumb(cancel_on_no_words)
+	if(stat == DEAD)
+		to_chat(src, span_notice("It's too late, you're already dead!"))
+		return
+	if(health >= HEALTH_THRESHOLD_CRIT)
+		to_chat(src, span_warning("You are unable to succumb to death! This life continues!"))
+		return
+
+	last_words = null // In case we kept some from last time
+	var/final_words = tgui_input_text(src, "Do you have any last words?", "Goodnight, Sweet Prince", encode = FALSE)
+
+	if(isnull(final_words) && cancel_on_no_words)
+		to_chat(src, span_notice("You decide you aren't quite ready to die."))
+		return
+
+	if(stat == DEAD)
+		return
+
+	if(health >= HEALTH_THRESHOLD_CRIT)
+		to_chat(src, span_warning("You are unable to succumb to death! This life continues!"))
+		return
+
+	if(!isnull(final_words))
+		last_words = final_words
+		whisper(final_words)
+
+	create_log(MISC_LOG, "has succumbed to death with [round(health, 0.1)] points of health")
+	adjustOxyLoss(max(health - HEALTH_THRESHOLD_DEAD, 0))
+	// super check for weird mobs, including ones that adjust hp
+	// we don't want to go overboard and gib them, though
+	for(var/i in 1 to 5)
+		if(health < HEALTH_THRESHOLD_DEAD)
+			break
+		take_overall_damage(max(5, health - HEALTH_THRESHOLD_DEAD), 0)
+
+	if(!isnull(final_words))
+		addtimer(CALLBACK(src, PROC_REF(death)), 1 SECONDS)
+	else
+		death()
+	to_chat(src, span_notice("You have given up life and succumbed to death."))
+	apply_status_effect(STATUS_EFFECT_RECENTLY_SUCCUMBED)
 
 /// Updates damage slowdown accordingly to the current health
 /mob/living/proc/update_movespeed_damage_modifiers()
 	return
 
+
+/mob/living/magic_charge_act(mob/user)
+	if(LAZYLEN(mob_spell_list))
+		for(var/obj/effect/proc_holder/spell/spell as anything in mob_spell_list)
+			if(spell.cooldown_handler.is_on_cooldown())
+				continue
+
+			spell.revert_cast()
+			. |= RECHARGE_SUCCESSFUL
+
+	if(LAZYLEN(mind?.spell_list))
+		for(var/obj/effect/proc_holder/spell/spell as anything in mind?.spell_list)
+			if(spell.cooldown_handler.is_on_cooldown())
+				continue
+
+			spell.revert_cast()
+			. |= RECHARGE_SUCCESSFUL
+
+	to_chat(src, span_notice("You feel [(. & RECHARGE_SUCCESSFUL) ? "raw magical energy flowing through you, it feels good!" : "very strange for a moment, but then it passes."]"))
+
+/mob/living/proc/set_name()
+	if(numba == 0)
+		numba = rand(1, 1000)
+	name = "[name] ([numba])"
+	real_name = name

@@ -6,7 +6,7 @@ GLOBAL_VAR(current_date_string)
 
 /obj/machinery/computer/account_database
 	name = "Accounts Uplink Terminal"
-	desc = "Access transaction logs, account data and all kinds of other financial records."
+	desc = "Получите доступ к журналам транзакций, данным учетной записи и всем видам других финансовых записей."
 	icon_screen = "accounts"
 	req_access = list(ACCESS_HOP, ACCESS_CAPTAIN, ACCESS_CENT_COMMANDER)
 	light_color = LIGHT_COLOR_GREEN
@@ -25,15 +25,6 @@ GLOBAL_VAR(current_date_string)
 	// If someone ever makes a map without one of these consoles, the entire eco AND date system breaks
 	// This upsets me a lot
 	// AA Todo: SSeconomy
-	if(!GLOB.station_account)
-		create_station_account()
-
-	if(GLOB.department_accounts.len == 0)
-		for(var/department in GLOB.station_departments)
-			create_department_account(department)
-	if(!GLOB.vendor_account)
-		create_department_account("Vendor")
-		GLOB.vendor_account = GLOB.department_accounts["Vendor"]
 
 	if(!GLOB.current_date_string)
 		GLOB.current_date_string = "[time2text(world.timeofday, "DD Month")], [GLOB.game_year]"
@@ -157,6 +148,8 @@ GLOBAL_VAR(current_date_string)
 			var/datum/money_account/M = create_account(account_name, starting_funds, src)
 			if(starting_funds > 0)
 				GLOB.station_account.charge(starting_funds, null, "New account activation", "", "New account activation", M.owner_name)
+			M.insurance_type = INSURANCE_TYPE_BUDGETARY
+			M.insurance = INSURANCE_NONE
 
 			current_page = AUT_ACCLST
 

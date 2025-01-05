@@ -42,6 +42,7 @@
 	var/gasefficency = 0.125
 
 	base_icon_state = "darkmatter_shard"
+	var/zap_sound_extrarange = 5
 
 	var/damage = 0
 	var/damage_archived = 0
@@ -354,7 +355,7 @@
 
 	consume(user)
 
-/obj/machinery/power/supermatter_shard/proc/get_integrity()
+/obj/machinery/power/supermatter_shard/proc/get_internal_integrity()
 	var/integrity = damage / explosion_point
 	integrity = round(100 - integrity * 100)
 	integrity = integrity < 0 ? 0 : integrity
@@ -540,16 +541,16 @@
 	if(!air)
 		return SUPERMATTER_ERROR
 
-	if(get_integrity() < 25)
+	if(get_internal_integrity() < 25)
 		return SUPERMATTER_DELAMINATING
 
-	if(get_integrity() < 50)
+	if(get_internal_integrity() < 50)
 		return SUPERMATTER_EMERGENCY
 
-	if(get_integrity() < 75)
+	if(get_internal_integrity() < 75)
 		return SUPERMATTER_DANGER
 
-	if((get_integrity() < 100) || (air.temperature > CRITICAL_TEMPERATURE))
+	if((get_internal_integrity() < 100) || (air.temperature > CRITICAL_TEMPERATURE))
 		return SUPERMATTER_WARNING
 
 	if(air.temperature > (CRITICAL_TEMPERATURE * 0.8))
@@ -577,7 +578,7 @@
         post_status(STATUS_DISPLAY_TRANSFER_SHUTTLE_TIME)
 
 /obj/machinery/power/supermatter_shard/proc/supermatter_zap()
-	playsound(src.loc, 'sound/magic/lightningshock.ogg', 100, 1, extrarange = 5)
+	playsound(src.loc, 'sound/magic/lightningshock.ogg', 100, 1, extrarange = zap_sound_extrarange)
 	tesla_zap(src, 10, max(1000,power * damage / explosion_point))
 
 // SM shard that can't be moved for ruins and gates

@@ -18,6 +18,10 @@
 	muzzle_flash_color = LIGHT_COLOR_DARKRED
 	select_name = "kill"
 
+/obj/item/ammo_casing/energy/laser/light
+	projectile_type = /obj/item/projectile/beam/laser/light
+	delay = 0.9
+
 /obj/item/ammo_casing/energy/laser/cyborg //to balance cyborg energy cost seperately
 	e_cost = 250
 
@@ -269,6 +273,10 @@
 	select_name = "bolt"
 	e_cost = 500
 	fire_sound = 'sound/weapons/gunshots/1heavysuppres.ogg'
+
+/obj/item/ammo_casing/energy/bolt/bolttoy
+	projectile_type = /obj/item/projectile/energy/bolttoy
+	select_name = "bolttoy"
 
 /obj/item/ammo_casing/energy/bolt/large
 	projectile_type = /obj/item/projectile/energy/bolt/large

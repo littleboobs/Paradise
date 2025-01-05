@@ -184,6 +184,14 @@
 	name = "statue of the research director"
 	icon_state = "rd"
 
+/obj/structure/statue/gold/unathi
+	name = "statue of the unati"
+	icon_state = "unathi"
+
+/obj/structure/statue/gold/tajaran
+	name = "statue of the tajaran"
+	icon_state = "tajaran"
+
 /obj/structure/statue/silver
 	max_integrity = 300
 	material_drop_type = /obj/item/stack/sheet/mineral/silver
@@ -317,6 +325,13 @@
 	anchored = TRUE
 	oreAmount = 0
 
+/obj/structure/statue/angel
+	name = "Stone Angel Statue"
+	desc = "An antique statue of a human angel made of stone."
+	icon_state = "angel"
+	anchored = TRUE
+	obj_flags = NODECONSTRUCT
+
 /obj/structure/statue/russian_mulebot
 	desc = "Like a MULEbot, but more Russian and less functional.";
 	icon = 'icons/obj/aibots.dmi';
@@ -389,6 +404,14 @@
 	anchored = TRUE
 	oreAmount = 0
 
+/obj/structure/statue/carp_mini
+	name = "Carp Statue"
+	desc = "A great inhabitant of space.."
+	icon = 'icons/obj/statuelarge.dmi'
+	icon_state = "carp_mini"
+	max_integrity = 200
+	anchored = TRUE
+
 /obj/structure/statue/noble
 	name = "Noble person"
 	desc = "Giant person, not like us... May be a hero from an ancient fairy tale?"
@@ -427,7 +450,8 @@
 	bound_width = 64
 	var/lit = 0
 	layer = EDGED_TURF_LAYER
-
+	anchored = TRUE
+	obj_flags = NODECONSTRUCT
 
 /obj/structure/statue/unknown/update_icon_state()
 	icon_state = "unknown[lit ? "_lit" : ""]"
@@ -587,3 +611,6 @@
 	desc = "It's staggering to think that something this big could have lived, let alone died."
 	icon = 'icons/obj/statuelarge.dmi'
 	icon_state = "rib"
+	anchored = TRUE
+	obj_flags = NODECONSTRUCT
+

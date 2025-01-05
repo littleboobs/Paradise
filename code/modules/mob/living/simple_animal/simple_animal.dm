@@ -9,6 +9,8 @@
 	universal_speak = 0
 	status_flags = CANPUSH
 
+	hud_type = /datum/hud/simple_animal
+
 	var/icon_living = ""
 	var/icon_dead = ""
 	var/icon_resting = ""
@@ -41,13 +43,6 @@
 	/// Was this mob spawned by xenobiology magic? Used for mobcapping.
 	var/xenobiology_spawned = FALSE
 
-	//Temperature effect
-	var/minbodytemp = 250
-	var/maxbodytemp = 350
-	/// Amount of damage applied if animal's body temperature is higher than maxbodytemp
-	var/heat_damage_per_tick = 2
-	/// Same as heat_damage_per_tick, only if the bodytemperature it's lower than minbodytemp
-	var/cold_damage_per_tick = 2
 	/// If the mob can catch fire
 	var/can_be_on_fire = FALSE
 	/// Damage the mob will take if it is on fire
@@ -140,6 +135,10 @@
 	var/Discipline = 0 // if a slime has been hit with a freeze gun, or wrestled/attacked off a human, they become disciplined and don't attack anymore for a while
 	var/SStun = 0 // stun variable
 
+	var/list/low_priority_targets = list()
+
+	var/atom/leash // autodust on a big distance
+	var/leash_radius = 10
 
 /mob/living/simple_animal/Initialize(mapload)
 	. = ..()
@@ -177,6 +176,8 @@
 
 	return ..()
 
+/mob/living/simple_animal/ComponentInitialize()
+	AddComponent(/datum/component/animal_temperature)
 
 ///Extra effects to add when the mob is tamed, such as adding a riding or whatever.
 /mob/living/simple_animal/proc/tamed(whomst)
@@ -231,7 +232,7 @@
 
 
 /mob/living/simple_animal/update_stat(reason = "none given", should_log = FALSE)
-	if(status_flags & GODMODE)
+	if(HAS_TRAIT(src, TRAIT_GODMODE))
 		return ..()
 	if(stat != DEAD)
 		if(health <= 0)
@@ -306,14 +307,13 @@
 
 
 /mob/living/simple_animal/handle_environment(datum/gas_mixture/environment)
+	if (leash)
+		var/dist = get_dist(src, leash)
+		if (dist > leash_radius)
+			src.dust()
+			return
+
 	var/atmos_suitable = TRUE
-
-	var/areatemp = get_temperature(environment)
-
-	if(abs(areatemp - bodytemperature) > 5)
-		var/diff = areatemp - bodytemperature
-		diff = diff / 5
-		adjust_bodytemperature(diff)
 
 	if(!HAS_TRAIT(src, TRAIT_NO_BREATH))
 		var/tox = environment.toxins
@@ -354,15 +354,7 @@
 		if(!atmos_suitable)
 			adjustHealth(unsuitable_atmos_damage)
 
-	handle_temperature_damage()
-
-
-/mob/living/simple_animal/proc/handle_temperature_damage()
-	if(bodytemperature < minbodytemp)
-		adjustHealth(cold_damage_per_tick)
-	else if(bodytemperature > maxbodytemp)
-		adjustHealth(heat_damage_per_tick)
-
+	SEND_SIGNAL(src, COMSIG_ANIMAL_HANDLE_ENVIRONMENT, environment)
 
 /mob/living/simple_animal/gib()
 	if(icon_gib)
@@ -379,12 +371,9 @@
 
 
 /mob/living/simple_animal/say_quote(message)
-	var/verb = "says"
-
-	if(speak_emote.len)
-		verb = pick(speak_emote)
-
-	return verb
+	if(speak_emote?.len)
+		return get_verb(speak_emote)
+	return ..()
 
 
 /mob/living/simple_animal/proc/set_varspeed(var_value)
@@ -446,8 +435,8 @@
 	if(see_invisible < the_target.invisibility)
 		return FALSE
 	if(ismob(the_target))
-		var/mob/M = the_target
-		if(M.status_flags & GODMODE)
+		var/mob/mob = the_target
+		if(HAS_TRAIT(mob, TRAIT_GODMODE))
 			return FALSE
 	if(isliving(the_target))
 		var/mob/living/L = the_target
@@ -631,6 +620,9 @@
 		return
 	if(!can_have_ai && (togglestatus != AI_OFF))
 		return
+	if(HAS_TRAIT(src, TRAIT_AI_PAUSED))
+		AIStatus = AI_OFF
+		return
 	var/turf/our_turf = get_turf(src)
 	if(QDELETED(src) || !our_turf)
 		return
@@ -704,6 +696,11 @@
 /mob/living/simple_animal/Login()
 	..()
 	SSmove_manager.stop_looping(src) // if mob is moving under ai control, then stop AI movement
+	toggle_ai(AI_OFF)
+
+/mob/living/simple_animal/Logout()
+	. = ..()
+	toggle_ai(AI_ON)
 
 
 /mob/living/simple_animal/say(message, verb = "says", sanitize = TRUE, ignore_speech_problems = FALSE, ignore_atmospherics = FALSE, ignore_languages = FALSE)
@@ -806,3 +803,7 @@
 	if(!can_collar)
 		return
 	AddElement(/datum/element/strippable, create_strippable_list(list(/datum/strippable_item/pet_collar)))
+
+/mob/living/simple_animal/proc/set_leash(atom/A, radius)
+	leash = A
+	leash_radius = radius

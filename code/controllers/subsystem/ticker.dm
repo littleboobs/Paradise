@@ -100,9 +100,6 @@ SUBSYSTEM_DEF(ticker)
 			to_chat(world, "Please, setup your character and select ready. Game will start in [CONFIG_GET(number/pregame_timestart)] seconds")
 			current_state = GAME_STATE_PREGAME
 			fire() // TG says this is a good idea
-			for(var/mob/new_player/N in GLOB.player_list)
-				if (N.client)
-					N.new_player_panel_proc() // to enable the observe option
 		if(GAME_STATE_PREGAME)
 			if(!SSticker.ticker_going) // This has to be referenced like this, and I dont know why. If you dont put SSticker. it will break
 				return
@@ -133,7 +130,7 @@ SUBSYSTEM_DEF(ticker)
 				SSvote.start_vote(new /datum/vote/crew_transfer)
 				next_autotransfer = world.time + CONFIG_GET(number/vote_autotransfer_interval)
 
-			var/game_finished = SSshuttle.emergency.mode >= SHUTTLE_ENDGAME || mode.station_was_nuked
+			var/game_finished = SSshuttle.emergency.mode == SHUTTLE_ENDGAME || mode.station_was_nuked
 			if(CONFIG_GET(flag/continuous_rounds))
 				mode.check_finished() // some modes contain var-changing code in here, so call even if we don't uses result
 			else
@@ -375,7 +372,7 @@ SUBSYSTEM_DEF(ticker)
 
 	for(var/mob/new_player/N in GLOB.mob_list)
 		if(N.client)
-			N.new_player_panel_proc()
+			SStitle.show_title_screen_to(N.client) // New Title Screen
 
 	#ifdef UNIT_TESTS
 	// Run map tests first in case unit tests futz with map state
@@ -391,7 +388,8 @@ SUBSYSTEM_DEF(ticker)
 
 /datum/controller/subsystem/ticker/proc/choose_lobby_music()
 	var/list/songs = CONFIG_GET(str_list/lobby_music)
-	selected_lobby_music = pick(songs)
+	if(LAZYLEN(songs))
+		selected_lobby_music = pick(songs)
 
 	if(SSholiday.holidays) // What's this? Events are initialized before tickers? Let's do something with that!
 		for(var/holidayname in SSholiday.holidays)
@@ -399,6 +397,9 @@ SUBSYSTEM_DEF(ticker)
 			if(LAZYLEN(holiday.lobby_music))
 				selected_lobby_music = pick(holiday.lobby_music)
 				break
+
+	if(!selected_lobby_music)
+		return
 
 	var/ytdl = CONFIG_GET(string/invoke_youtubedl)
 	if(!ytdl)
@@ -446,6 +447,11 @@ SUBSYSTEM_DEF(ticker)
 					M.ghostize()
 					M.dust() //no mercy
 					CHECK_TICK
+		for(var/core in GLOB.blob_cores)
+			var/turf/T = get_turf(core)
+			if(T && is_station_level(T.z))
+				qdel(core)
+				CHECK_TICK
 
 	//Now animate the cinematic
 	switch(station_missed)

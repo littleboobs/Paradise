@@ -92,6 +92,13 @@
 	disliked_food = FRIED
 	liked_food = MEAT | RAW | EGG | GROSS | FRUIT | VEGETABLES
 
+	age_sheet = list(
+		SPECIES_AGE_MIN = 12,
+		SPECIES_AGE_MAX = 70,
+		JOB_MIN_AGE_HIGH_ED = 22,
+		JOB_MIN_AGE_COMMAND = 22,
+	)
+
 
 /datum/species/unathi/handle_death(gibbed, mob/living/carbon/human/H)
 	H.stop_tail_wagging()
@@ -106,8 +113,7 @@
 		/mob/living/carbon/human/proc/emote_roar,
 		/mob/living/carbon/human/proc/emote_threat,
 		/mob/living/carbon/human/proc/emote_whip,
-		/mob/living/carbon/human/proc/emote_whip_l,
-		/mob/living/carbon/human/proc/emote_rumble))
+		/mob/living/carbon/human/proc/emote_whip_l))
 	var/datum/action/innate/tail_cut/lash = locate() in H.actions
 	if(!lash)
 		lash = new
@@ -123,8 +129,7 @@
 		/mob/living/carbon/human/proc/emote_roar,
 		/mob/living/carbon/human/proc/emote_threat,
 		/mob/living/carbon/human/proc/emote_whip,
-		/mob/living/carbon/human/proc/emote_whip_l,
-		/mob/living/carbon/human/proc/emote_rumble))
+		/mob/living/carbon/human/proc/emote_whip_l))
 	var/datum/action/innate/tail_cut/lash = locate() in H.actions
 	lash?.Remove(H)
 
@@ -160,7 +165,7 @@
 	language = LANGUAGE_UNATHI
 	default_language = LANGUAGE_UNATHI
 
-	speed_mod = -0.80
+	speed_mod = -0.50
 
 	inherent_traits = list(
 		TRAIT_HAS_LIPS,
@@ -176,7 +181,7 @@
 		INTERNAL_ORGAN_KIDNEYS = /obj/item/organ/internal/kidneys/unathi,
 		INTERNAL_ORGAN_BRAIN = /obj/item/organ/internal/brain/unathi,
 		INTERNAL_ORGAN_APPENDIX = /obj/item/organ/internal/appendix,
-		INTERNAL_ORGAN_EYES = /obj/item/organ/internal/eyes/unathi,
+		INTERNAL_ORGAN_EYES = /obj/item/organ/internal/eyes/unathi/ash_walker,
 		INTERNAL_ORGAN_EARS = /obj/item/organ/internal/ears,
 	)
 
@@ -218,13 +223,23 @@
 	)
 	brute_mod = 1.15
 	burn_mod = 1.15
-	speed_mod = -0.60 //less fast as ash walkers
+	speed_mod = -0.37 //less fast as ash walkers
 	punchdamagelow = 4
 	punchdamagehigh = 7
 	punchstunthreshold = 7 //still can stun people pretty often
 	toolspeedmod = -0.1 //they're smart and efficient unlike other lizards
 	surgeryspeedmod = -0.1	//shaman is slightly better at surgeries
 
+	has_organ = list(
+		INTERNAL_ORGAN_HEART = /obj/item/organ/internal/heart/unathi,
+		INTERNAL_ORGAN_LUNGS = /obj/item/organ/internal/lungs/unathi/ash_walker,
+		INTERNAL_ORGAN_LIVER = /obj/item/organ/internal/liver/unathi,
+		INTERNAL_ORGAN_KIDNEYS = /obj/item/organ/internal/kidneys/unathi,
+		INTERNAL_ORGAN_BRAIN = /obj/item/organ/internal/brain/unathi,
+		INTERNAL_ORGAN_APPENDIX = /obj/item/organ/internal/appendix,
+		INTERNAL_ORGAN_EYES = /obj/item/organ/internal/eyes/unathi/ash_walker_shaman,
+		INTERNAL_ORGAN_EARS = /obj/item/organ/internal/ears,
+	)
 
 /datum/species/unathi/ashwalker/shaman/on_species_gain(mob/living/carbon/human/owner)
 	. = ..()

@@ -50,6 +50,7 @@
 /obj/machinery/disposal/Initialize(mapload, obj/structure/disposalconstruct/made_from)
 	// this will get a copy of the air turf and take a SEND PRESSURE amount of air from it
 	. = ..()
+	air_contents = new
 	if(made_from)
 		setDir(made_from.dir)
 	return INITIALIZE_HINT_LATELOAD
@@ -60,7 +61,6 @@
 	var/datum/gas_mixture/env = new
 	env.copy_from(loc.return_air())
 	var/datum/gas_mixture/removed = env.remove(SEND_PRESSURE + 1)
-	air_contents = new
 	air_contents.merge(removed)
 	trunk_check()
 	update()
@@ -230,6 +230,19 @@
 	transfer_fingerprints_to(construct)
 	construct.set_anchored(TRUE)
 	qdel(src)
+
+
+/obj/machinery/disposal/shove_impact(mob/living/target, mob/living/attacker)
+	target.visible_message(
+		span_warning("[attacker] shoves [target] inside of [src]!"),
+		span_userdanger("[attacker] shoves you inside of [src]!"),
+		span_warning("You hear the sound of something being thrown in the trash.")
+	)
+	target.forceMove(src)
+	add_attack_logs(attacker, target, "Shoved into disposals")
+	playsound(src, "sound/effects/bang.ogg")
+	update()
+	return TRUE
 
 
 // mouse drop another mob or self

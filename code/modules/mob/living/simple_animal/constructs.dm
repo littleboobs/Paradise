@@ -15,7 +15,6 @@
 	see_invisible = SEE_INVISIBLE_HIDDEN_RUNES
 	attack_sound = 'sound/weapons/punch1.ogg'
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
-	minbodytemp = 0
 	faction = list("cult")
 	pressure_resistance = 100
 	universal_speak = TRUE
@@ -48,12 +47,18 @@
 	for(var/spell in construct_spells)
 		AddSpell(new spell(null))
 
-	set_light(2, 3, l_color = SSticker.cultdat ? SSticker.cultdat.construct_glow : LIGHT_COLOR_BLOOD_MAGIC)
+	set_light_range_power_color(2, 3, SSticker.cultdat ? SSticker.cultdat.construct_glow : LIGHT_COLOR_BLOOD_MAGIC)
 
 /mob/living/simple_animal/hostile/construct/Initialize(mapload)
 	. = ..()
 	add_traits(list(TRAIT_HEALS_FROM_CULT_PYLONS, TRAIT_HEALS_FROM_HOLY_PYLONS, TRAIT_NO_FLOATING_ANIM), INNATE_TRAIT)
 	AddElement(/datum/element/simple_flying)
+
+/mob/living/simple_animal/hostile/construct/ComponentInitialize()
+	AddComponent( \
+		/datum/component/animal_temperature, \
+		minbodytemp = 223, \
+	)
 
 /mob/living/simple_animal/hostile/construct/death(gibbed)
 	. = ..()
@@ -122,6 +127,7 @@
 	force_threshold = 11
 	playstyle_string = "<b>You are a Juggernaut. Though slow, your shell can withstand extreme punishment, \
 						create shield walls, rip apart enemies and walls alike, and even deflect energy weapons.</b>"
+	hud_type = /datum/hud/construct/armoured
 
 /mob/living/simple_animal/hostile/construct/armoured/hostile //actually hostile, will move around, hit things
 	AIStatus = AI_ON
@@ -172,6 +178,7 @@
 	retreat_distance = 2 //AI wraiths will move in and out of combat
 	playstyle_string = "<b>You are a Wraith. Though relatively fragile, you are fast, deadly, and even able to phase through walls.</b>"
 	tts_seed = "Kelthuzad"
+	hud_type = /datum/hud/construct/wraith
 
 /mob/living/simple_animal/hostile/construct/wraith/hostile //actually hostile, will move around, hit things
 	AIStatus = AI_ON
@@ -223,6 +230,7 @@
 						use magic missile, repair allied constructs (by clicking on them), \
 						<i>and, most important of all,</i> create new constructs by producing soulstones to capture souls, \
 						and shells to place those soulstones into.</b>"
+	hud_type = /datum/hud/construct/builder
 
 
 /mob/living/simple_animal/hostile/construct/builder/Found(atom/A) //what have we found here?
@@ -304,6 +312,7 @@
 	attack_sound = 'sound/weapons/punch4.ogg'
 	force_threshold = 11
 	construct_type = "behemoth"
+	hud_type = /datum/hud/construct/armoured
 	var/energy = 0
 	var/max_energy = 1000
 
@@ -336,6 +345,7 @@
 	retreat_distance = 2 //AI harvesters will move in and out of combat, like wraiths, but shittier
 	playstyle_string = "<B>You are a Harvester. You are not strong, but your powers of domination will assist you in your role: \
 						Bring those who still cling to this world of illusion back to the master so they may know Truth.</B>"
+	hud_type = /datum/hud/construct/harvester
 
 
 /mob/living/simple_animal/hostile/construct/harvester/Process_Spacemove(movement_dir = NONE, continuous_move = FALSE)

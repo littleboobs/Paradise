@@ -38,6 +38,18 @@
 	datum_owner.AddComponent(/datum/component/codeword_hearing, GLOB.syndicate_code_phrase_regex, "codephrases", src)
 	datum_owner.AddComponent(/datum/component/codeword_hearing, GLOB.syndicate_code_response_regex, "coderesponses", src)
 
+	datum_owner.AddComponent( \
+		/datum/component/pref_viewer, \
+		list(/datum/preference_info/take_out_of_the_round_without_obj), \
+	)
+
+/datum/antagonist/traitor/on_body_transfer(mob/living/old_body, mob/living/new_body)
+	. = ..()
+	qdel(old_body.GetComponent(/datum/component/pref_viewer))
+
+/datum/antagonist/traitor/handle_last_instance_removal()
+	qdel(owner.current.GetComponent(/datum/component/pref_viewer))
+
 /datum/antagonist/traitor/remove_innate_effects(mob/living/mob_override)
 	. = ..()
 	var/mob/living/datum_owner = mob_override || owner.current
@@ -118,7 +130,7 @@
 			return
 
 	for(var/i = objective_count, i < objective_amount)
-		forge_single_human_objective()
+		forge_single_objective()
 		i += 1
 
 	var/martyr_compatibility = TRUE //You can't succeed in stealing if you're dead.
@@ -182,30 +194,6 @@
 		where = "In your [equipped_slot]"
 	to_chat(mob, "<BR><BR><span class='info'>[where] is a folder containing <b>secret documents</b> that another Syndicate group wants. We have set up a meeting with one of their agents on station to make an exchange. Exercise extreme caution as they cannot be trusted and may be hostile.</span><BR>")
 	mob.update_icons()
-
-
-/**
- * Create and assign a single randomized traitor objective.
- */
-/datum/antagonist/traitor/proc/forge_single_human_objective()
-	if(prob(50))
-		if(length(active_ais()) && prob(100 / length(GLOB.player_list)))
-			add_objective(/datum/objective/destroy)
-
-		else if(prob(5))
-			add_objective(/datum/objective/debrain)
-
-		else if(prob(30))
-			add_objective(/datum/objective/pain_hunter)
-
-		else if(prob(20))
-			add_objective(/datum/objective/protect)
-
-		else
-			add_objective(/datum/objective/maroon)
-
-	else
-		add_objective(/datum/objective/steal)
 
 
 /**

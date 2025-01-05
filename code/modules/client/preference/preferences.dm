@@ -74,9 +74,8 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 #define TAB_CHAR 	0
 #define TAB_GAME 	1
 #define TAB_SPEC 	2
-#define TAB_GEAR 	3
-#define TAB_KEYS 	4
-#define TAB_TOGGLES 5
+#define TAB_KEYS 	3
+#define TAB_TOGGLES 4
 
 /datum/preferences
 	var/client/parent
@@ -242,6 +241,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 
 	//Gear stuff
 	var/list/loadout_gear = list()
+	var/list/tgui_loadout_gear = list()
 	var/list/choosen_gears = list()
 	var/gear_tab = "General"
 	// Parallax
@@ -305,6 +305,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 	update_preview_icon()
 	user << browse_rsc(preview_icon_front, "previewicon.png")
 	user << browse_rsc(preview_icon_side, "previewicon2.png")
+	SStitle.update_preview(user.client)
 
 	var/list/dat = list()
 	dat += {"<meta charset="UTF-8">"}
@@ -312,7 +313,6 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 	dat += "<a href='byond://?_src_=prefs;preference=tab;tab=[TAB_CHAR]' [current_tab == TAB_CHAR ? "class='linkOn'" : ""]>Character Settings</a>"
 	dat += "<a href='byond://?_src_=prefs;preference=tab;tab=[TAB_GAME]' [current_tab == TAB_GAME ? "class='linkOn'" : ""]>Game Preferences</a>"
 	dat += "<a href='byond://?_src_=prefs;preference=tab;tab=[TAB_SPEC]' [current_tab == TAB_SPEC ? "class='linkOn'" : ""]>Special Roles</a>"
-	dat += "<a href='byond://?_src_=prefs;preference=tab;tab=[TAB_GEAR]' [current_tab == TAB_GEAR ? "class='linkOn'" : ""]>Loadout</a>"
 	dat += "<a href='byond://?_src_=prefs;preference=tab;tab=[TAB_KEYS]' [current_tab == TAB_KEYS ? "class='linkOn'" : ""]>Key Bindings</a>"
 	dat += "<a href='byond://?_src_=prefs;preference=tab;tab=[TAB_TOGGLES]' [current_tab == TAB_TOGGLES ? "class='linkOn'" : ""]>General Preferences</a>"
 	dat += "</center>"
@@ -531,7 +531,8 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 					dat += "<b>Undershirt Color:</b> <a href='byond://?_src_=prefs;preference=undershirt_color;task=input'>Color</a> [color_square(undershirt_color)]<BR>"
 			if(S.clothing_flags & HAS_SOCKS)
 				dat += "<b>Socks:</b> <a href='byond://?_src_=prefs;preference=socks;task=input'>[socks]</a><BR>"
-			dat += "<b>Backpack Type:</b> <a href='byond://?_src_=prefs;preference=bag;task=input'>[backbag]</a><br>"
+			dat += "<b>Backpack Type:</b> <a href='byond://?_src_=prefs;preference=bag;task=input'>[backbag]</a><br><br>"
+			dat += "<a style='font-size: 1.5em;' href='byond://?_src_=prefs;preference=loadout;task=input'>Open Loadout</a><br>"
 
 			dat += "</td></tr></table>"
 
@@ -606,6 +607,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 			dat += "<b> - TGUI Input:</b> <a href='byond://?_src_=prefs;preference=tgui_input'>[(toggles2 & PREFTOGGLE_2_DISABLE_TGUI_INPUT) ? "No" : "Yes"]</a><br>"
 			dat += "<b> - TGUI Input - Large Buttons:</b> <a href='byond://?_src_=prefs;preference=tgui_input_large'>[(toggles2 & PREFTOGGLE_2_LARGE_INPUT_BUTTONS) ? "Yes" : "No"]</a><br>"
 			dat += "<b> - TGUI Input - Swap Buttons:</b> <a href='byond://?_src_=prefs;preference=tgui_input_swap'>[(toggles2 & PREFTOGGLE_2_SWAP_INPUT_BUTTONS) ? "Yes" : "No"]</a><br>"
+			dat += "<b>Title menu style:</b> <a href='byond://?_src_=prefs;preference=pixelated_menu'>[(toggles2 & PREFTOGGLE_2_PIXELATED_MENU) ? "Pixelated" : "Basic"]</a><br>"
 			dat += "</td></tr></table>"
 
 		if(TAB_SPEC) // Antagonist's Preferences
@@ -640,60 +642,6 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 						dat += "</td><td width='340px' height='300px' valign='top'><br/><br/>"
 			dat += "</td></tr></table>"
 
-		if(TAB_GEAR)
-			var/total_cost = 0
-			var/list/type_blacklist = list()
-			if(loadout_gear && loadout_gear.len)
-				for(var/i = 1, i <= loadout_gear.len, i++)
-					var/datum/gear/G = GLOB.gear_datums[loadout_gear[i]]
-					if(G)
-						if(!G.subtype_cost_overlap)
-							if(G.subtype_path in type_blacklist)
-								continue
-							type_blacklist += G.subtype_path
-						total_cost += G.cost
-
-			var/fcolor =  "#3366CC"
-			if(total_cost < max_gear_slots)
-				fcolor = "#E67300"
-			dat += "<table align='center' width='100%' border='4px solid' >"
-			dat += "<tr><td colspan=4><center><b><font color='[fcolor]'>[total_cost]/[max_gear_slots]</font> loadout points spent.</b> \[<a href='byond://?_src_=prefs;preference=gear;clear_loadout=1'>Clear Loadout</a>\]</center></td></tr>"
-			dat += "<tr><td colspan=4><center><b>"
-
-			var/firstcat = 1
-			var/list/own_categories = GLOB.loadout_categories.Copy()
-			var/datum/loadout_category/choosen = new("Selected")
-			choosen.gear = choosen_gears
-			own_categories[choosen.category] = choosen
-			for(var/category in own_categories)
-				if(firstcat)
-					firstcat = 0
-				else
-					dat += " |"
-				if(category == gear_tab)
-					dat += " <span class='linkOff'>[category]</span> "
-				else
-					dat += " <a style=[category == choosen.category ? "'background: steelblue'" : "''"] href='byond://?_src_=prefs;preference=gear;select_category=[category]'>[category]</a> "
-			dat += "</b></center></td></tr>"
-
-			var/datum/loadout_category/LC = own_categories[gear_tab]
-			dat += "<tr><td colspan=4><b><center>[LC.category]</center></b></td></tr>"
-			for(var/gear_name in LC.gear)
-				var/datum/gear/G = LC.gear[gear_name]
-				var/datum/gear/ticked = choosen_gears[G.display_name]
-				dat += "<tr align='center' style='vertical-align:top;'><td width=15%><a style='white-space:normal;vertical-align:middle' [ticked ? "class='linkOn' " : ""]href='byond://?_src_=prefs;preference=gear;toggle_gear=[G.display_name]'>[G.display_name]</a><br/><img src=data:image/jpeg;base64,[ticked ? ticked.base64icon : G.base64icon] class='loadoutPreview'>"
-				if(ticked)
-					for(var/datum/gear_tweak/tweak in ticked.gear_tweaks)
-						dat += "<br/><a href='byond://?_src_=prefs;preference=gear;gear=[ticked.display_name];tweak=\ref[tweak]'>[tweak.get_contents(get_tweak_metadata(ticked, tweak))]</a>"
-				dat += "</td><td width = 5% align='center' style='vertical-align:middle'><b>[G.cost]</b></td><td style='vertical-align:middle'>"
-				if(G.allowed_roles)
-					dat += "<font size=2>Restrictions: "
-					for(var/role in G.allowed_roles)
-						dat += role + " "
-					dat += "</font>"
-				var/donor_info = G.donator_tier > 0 ? "\[Tier [G.donator_tier]\] " : ""
-				dat += "</td><td style='vertical-align:middle'><font size=2>[donor_info]<i>[ticked ? ticked.description : G.description] <br/></i></font></td></tr>"
-			dat += "</table>"
 		if(TAB_KEYS)
 			dat += "<div align='center'><b>All Key Bindings:&nbsp;</b>"
 			dat += "<a href='byond://?_src_=prefs;preference=keybindings;all=reset'>Reset to Default</a>&nbsp;"
@@ -805,10 +753,10 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 
 
 /datum/preferences/proc/get_gear_metadata(var/datum/gear/G)
-	. = loadout_gear[G.display_name]
+	. = loadout_gear[G.index_name]
 	if(!.)
 		. = list()
-		loadout_gear[G.display_name] = .
+		loadout_gear[G.index_name] = .
 
 /datum/preferences/proc/get_tweak_metadata(var/datum/gear/G, var/datum/gear_tweak/tweak)
 	var/list/metadata = get_gear_metadata(G)
@@ -905,7 +853,11 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 				html += "<del class='[color]'>[rank]</del></td><td><span class='btn btn-sm btn-danger text-light border border-secondary disabled' style='padding: 0px 4px;'><b> \[ЧЕРЕЗ [(available_in_days)] ДНЕЙ]</b></span></td></tr>"
 				continue
 			if(!job.character_old_enough(user.client))
-				html += "<del class='[color]'>[rank]</del></td><td><span class='btn btn-sm btn-danger text-light border border-secondary disabled' style='padding: 0px 4px;'><b> \[ВОЗРАСТ ОТ [(job.min_age_allowed)]]</b></span></td></tr>"
+				var/datum/species/current_species = GLOB.all_species[species]
+				html += "<del class='[color]'>[rank]</del></td><td><span class='btn btn-sm btn-danger text-light border border-secondary disabled' style='padding: 0px 4px;'><b> \[ВОЗРАСТ ОТ [get_age_limits(current_species, job.min_age_type)]</b></span></td></tr>"
+				continue
+			if(job.species_in_blacklist(user.client))
+				html += "<del class='[color]'>[rank]</del></td><td><span class='btn btn-sm btn-danger text-light border border-secondary disabled' style='padding: 0px 4px;'><b> \[НЕДОСТУПНО ДЛЯ ДАННОЙ РАСЫ]</b></span></td></tr>"
 				continue
 			if((job.title in GLOB.command_positions) || (job.title == JOB_TITLE_AI))//Bold head jobs
 				html += "<b><span class='[color]'>[rank]</span></b>"
@@ -1184,6 +1136,10 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 		HTML += ShowDisabilityState(user, DISABILITY_FLAG_COFFEE_ADDICT, "Coffee addict")
 	if(!(S.blacklisted_disabilities & DISABILITY_FLAG_ALCOHOLE_ADDICT))
 		HTML += ShowDisabilityState(user, DISABILITY_FLAG_ALCOHOLE_ADDICT, "Alcohole addict")
+	if(!(S.blacklisted_disabilities & DISABILITY_FLAG_PARAPLEGIA))
+		HTML += ShowDisabilityState(user, DISABILITY_FLAG_PARAPLEGIA, "Paraplegia")
+	if(!(S.blacklisted_disabilities & DISABILITY_FLAG_APHASIA))
+		HTML += ShowDisabilityState(user, DISABILITY_FLAG_APHASIA, "Aphasia")
 
 	HTML += {"</ul>
 		<a href=\"?_src_=prefs;task=close;preference=disabilities\">\[Done\]</a>
@@ -1272,6 +1228,60 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 
 	SetChoices(user)
 	return 1
+
+/**
+  * Rebuilds the `loadout_gear` list of the [active_character], and returns the total end cost.
+  *
+  * Caches and cuts the existing [/datum/character_save/var/loadout_gear] list and remakes it, checking the `subtype_selection_cost` and overall cost validity of each item.
+  *
+  * If the item's [/datum/gear/var/subtype_selection_cost] is `FALSE`, any future items with the same [/datum/gear/var/main_typepath] will have their cost skipped.
+  * If adding the item will take the total cost over the maximum, it won't be added to the list.
+  *
+  * Arguments:
+  * * new_item - A new [/datum/gear] item to be added to the `loadout_gear` list.
+  */
+/datum/preferences/proc/build_loadout(datum/gear/new_item)
+	var/total_cost = 0
+	var/list/type_blacklist = list()
+	var/list/loadout_cache = loadout_gear.Copy()
+	loadout_gear.Cut()
+	tgui_loadout_gear.Cut()
+	choosen_gears.Cut()
+	if(new_item)
+		loadout_cache += "[new_item.index_name]"
+
+	for(var/item in loadout_cache)
+		var/datum/gear/gear = GLOB.gear_datums[item]
+		if(!gear)
+			continue
+		var/added_cost = gear.cost
+		if(!gear.subtype_cost_overlap) // If listings of the same subtype shouldn't have their cost added.
+			if(gear.path in type_blacklist)
+				added_cost = 0
+			else
+				type_blacklist += gear.path
+		if((total_cost + added_cost) > max_gear_slots)
+			continue // If the final cost is too high, don't add the item.
+		var/item_cache = loadout_cache[item]
+		loadout_gear[item] = item_cache ? item_cache : list()
+		var/tgui_data = list()
+		for(var/datum/gear_tweak/tweak in gear.gear_tweaks)
+			var/text_path = "[tweak.type]"
+			if(!(text_path in item_cache))
+				continue
+			var/params = item_cache[text_path]
+			var/list/data =tweak?.get_tgui_data(params)
+			if (!data)
+				continue
+			tgui_data[text_path] = data["display_param"]
+			tgui_data["name"] = data["name"]
+			tgui_data["icon"] = data["icon"]
+			tgui_data["icon_file"] = data["icon_file"]
+			tgui_data["icon_state"] = data["icon_state"]
+		tgui_loadout_gear[gear] = tgui_data
+		choosen_gears[item] = gear
+		total_cost += added_cost
+	return total_cost
 
 /datum/preferences/proc/ResetJobs()
 	job_support_high = 0
@@ -1484,48 +1494,6 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 			SetRecords(user)
 
 
-	if(href_list["preference"] == "gear")
-		if(href_list["toggle_gear"])
-			var/datum/gear/TG = GLOB.gear_datums[href_list["toggle_gear"]]
-			if(TG.display_name in loadout_gear)
-				loadout_gear -= TG.display_name
-				choosen_gears -= TG.display_name
-			else
-				if(TG.donator_tier && user.client.donator_level < TG.donator_tier)
-					to_chat(user, span_warning("That gear is only available at [TG.donator_tier] and higher donation tier."))
-					return
-				var/total_cost = 0
-				var/list/type_blacklist = list()
-				for(var/gear_name in loadout_gear)
-					var/datum/gear/G = GLOB.gear_datums[gear_name]
-					if(istype(G))
-						if(!G.subtype_cost_overlap)
-							if(G.subtype_path in type_blacklist)
-								continue
-							type_blacklist += G.subtype_path
-						total_cost += G.cost
-
-				if((total_cost + TG.cost) <= max_gear_slots)
-					loadout_gear += TG.display_name
-					choosen_gears[TG.display_name] += new TG.type
-		else if(href_list["gear"] && href_list["tweak"])
-			var/datum/gear/gear = choosen_gears[href_list["gear"]]
-			var/datum/gear_tweak/tweak = locate(href_list["tweak"])
-			if(!tweak || !istype(gear) || !(tweak in gear.gear_tweaks))
-				return
-			var/metadata = tweak.get_metadata(user, get_tweak_metadata(gear, tweak))
-			if(!metadata)
-				return
-			set_tweak_metadata(gear, tweak, metadata)
-		else if(href_list["select_category"])
-			gear_tab = href_list["select_category"]
-		else if(href_list["clear_loadout"])
-			loadout_gear.Cut()
-			choosen_gears.Cut()
-
-		ShowChoices(user)
-		return
-
 	switch(href_list["task"])
 		if("random")
 			var/datum/robolimb/robohead
@@ -1535,11 +1503,9 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 			switch(href_list["preference"])
 				if("name")
 					real_name = random_name(gender,species)
-					if(isnewplayer(user))
-						var/mob/new_player/N = user
-						N.new_player_panel_proc()
+					user.client << output(real_name, "title_browser:update_current_character")
 				if("age")
-					age = rand(AGE_MIN, AGE_MAX)
+					age = get_rand_age(S)
 				if("hair")
 					if(species in list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_TAJARAN, SPECIES_SKRELL, SPECIES_MACNINEPERSON, SPECIES_WRYN, SPECIES_VULPKANIN, SPECIES_VOX))
 						h_colour = rand_hex_color()
@@ -1547,7 +1513,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 					if(species in list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_TAJARAN, SPECIES_SKRELL, SPECIES_MACNINEPERSON, SPECIES_WRYN, SPECIES_VULPKANIN, SPECIES_VOX))
 						h_sec_colour = rand_hex_color()
 				if("h_style")
-					h_style = random_hair_style(gender, species, robohead)
+					h_style = random_hair_style(gender, S, robohead)
 				if("facial")
 					if(species in list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_TAJARAN, SPECIES_SKRELL, SPECIES_MACNINEPERSON, SPECIES_WRYN, SPECIES_VULPKANIN, SPECIES_VOX))
 						f_colour = rand_hex_color()
@@ -1570,7 +1536,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 						m_colours["head"] = rand_hex_color()
 				if("m_style_body")
 					if(S.bodyflags & HAS_BODY_MARKINGS) //Species with body markings.
-						m_styles["body"] = random_marking_style("body", species)
+						m_styles["body"] = random_marking_style("body", species, gender = src.gender)
 				if("m_body_colour")
 					if(S.bodyflags & HAS_BODY_MARKINGS) //Species with body markings.
 						m_colours["body"] = rand_hex_color()
@@ -1611,17 +1577,16 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 						var/new_name = reject_bad_name(raw_name, 1)
 						if(new_name)
 							real_name = new_name
-							if(isnewplayer(user))
-								var/mob/new_player/N = user
-								N.new_player_panel_proc()
+							user.client << output(real_name, "title_browser:update_current_character")
 						else
 							to_chat(user, "<font color='red'>Invalid name. Your name should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, -, ' and .</font>")
 
 				if("age")
-					var/new_age = tgui_input_number(user, "Choose your character's age:\n([AGE_MIN]-[AGE_MAX])", "Character Preference", age, AGE_MAX, AGE_MIN)
+					var/list/age_list = get_age_limits(S, list(SPECIES_AGE_MIN, SPECIES_AGE_MAX))
+					var/new_age = tgui_input_number(user, "Choose your character's age:\n([age_list[SPECIES_AGE_MIN]]-[age_list[SPECIES_AGE_MAX]])", "Character Preference", age, age_list[SPECIES_AGE_MAX], age_list[SPECIES_AGE_MIN])
 					if(!new_age)
 						return
-					age = max(min(round(text2num(new_age)), AGE_MAX), AGE_MIN)
+					age = clamp(round(text2num(new_age)), age_list[SPECIES_AGE_MIN], age_list[SPECIES_AGE_MAX])
 				if("species")
 					var/list/new_species = list(SPECIES_HUMAN)
 					var/prev_species = species
@@ -1644,7 +1609,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 							var/head_model = "[!rlimb_data["head"] ? "Morpheus Cyberkinetics" : rlimb_data["head"]]"
 							robohead = GLOB.all_robolimbs[head_model]
 						//grab one of the valid hair styles for the newly chosen species
-						h_style = random_hair_style(gender, species, robohead)
+						h_style = random_hair_style(gender, S, robohead)
 
 						//grab one of the valid facial hair styles for the newly chosen species
 						f_style = random_facial_hair_style(gender, species, robohead)
@@ -1662,7 +1627,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 							m_colours["head"] = "#000000"
 
 						if(NS.bodyflags & HAS_BODY_MARKINGS) //Species with body markings/tattoos.
-							m_styles["body"] = random_marking_style("body", species)
+							m_styles["body"] = random_marking_style("body", species, gender = src.gender)
 						else
 							m_styles["body"] = "None"
 							m_colours["body"] = "#000000"
@@ -1695,6 +1660,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 						if(!(NS.bodyflags & HAS_SKIN_COLOR))
 							s_colour = "#000000"
 
+						age = get_rand_age(NS)
 						alt_head = "None" //No alt heads on species that don't have them.
 						speciesprefs = 0 //My Vox tank shouldn't change how my future Grey talks.
 						language = LANGUAGE_NONE
@@ -1757,18 +1723,18 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 						b_type = new_b_type
 
 				if("hair")
-					if(species in list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_TAJARAN, SPECIES_SKRELL, SPECIES_MACNINEPERSON, SPECIES_VULPKANIN, SPECIES_VOX)) //Species that have hair. (No HAS_HAIR flag)
+					if(species in list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_TAJARAN, SPECIES_SKRELL, SPECIES_MACNINEPERSON, SPECIES_VULPKANIN, SPECIES_VOX, SPECIES_WRYN)) //Species that have hair. (No HAS_HAIR flag)
 						var/input = "Choose your character's hair colour:"
-						var/new_hair = input(user, input, "Character Preference", h_colour) as color|null
-						if(new_hair)
+						var/new_hair = tgui_input_color(user, input, "Character Preference", h_colour)
+						if(!isnull(new_hair))
 							h_colour = new_hair
 
 				if("secondary_hair")
 					if(species in list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_TAJARAN, SPECIES_SKRELL, SPECIES_MACNINEPERSON, SPECIES_VULPKANIN, SPECIES_VOX))
 						var/datum/sprite_accessory/hair_style = GLOB.hair_styles_public_list[h_style]
 						if(hair_style.secondary_theme && !hair_style.no_sec_colour)
-							var/new_hair = input(user, "Choose your character's secondary hair colour:", "Character Preference", h_sec_colour) as color|null
-							if(new_hair)
+							var/new_hair = tgui_input_color(user, "Choose your character's secondary hair colour:", "Character Preference", h_sec_colour)
+							if(!isnull(new_hair))
 								h_sec_colour = new_hair
 
 				if("h_style")
@@ -1816,8 +1782,8 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 						h_grad_offset_y = clamp(text2num(expl[2]) || 0, -16, 16)
 
 				if("h_grad_colour")
-					var/result = input(user, "Choose your character's hair gradient colour:", "Character Preference", h_grad_colour) as color|null
-					if(result)
+					var/result = tgui_input_color(user, "Choose your character's hair gradient colour:", "Character Preference", h_grad_colour)
+					if(!isnull(result))
 						h_grad_colour = result
 
 				if("h_grad_alpha")
@@ -1829,8 +1795,8 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 				if("headaccessory")
 					if(S.bodyflags & HAS_HEAD_ACCESSORY) //Species with head accessories.
 						var/input = "Choose the colour of your your character's head accessory:"
-						var/new_head_accessory = input(user, input, "Character Preference", hacc_colour) as color|null
-						if(new_head_accessory)
+						var/new_head_accessory = tgui_input_color(user, input, "Character Preference", hacc_colour)
+						if(!isnull(new_head_accessory))
 							hacc_colour = new_head_accessory
 
 				if("ha_style")
@@ -1909,8 +1875,8 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 				if("m_head_colour")
 					if(S.bodyflags & HAS_HEAD_MARKINGS) //Species with head markings.
 						var/input = "Choose the colour of your your character's head markings:"
-						var/new_markings = input(user, input, "Character Preference", m_colours["head"]) as color|null
-						if(new_markings)
+						var/new_markings = tgui_input_color(user, input, "Character Preference", m_colours["head"])
+						if(!isnull(new_markings))
 							m_colours["head"] = new_markings
 
 				if("m_style_body")
@@ -1919,6 +1885,8 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 						valid_markings["None"] = GLOB.marking_styles_list["None"]
 						for(var/markingstyle in GLOB.marking_styles_list)
 							var/datum/sprite_accessory/M = GLOB.marking_styles_list[markingstyle]
+							if(gender == M.unsuitable_gender)
+								continue
 							if(!(species in M.species_allowed))
 								continue
 							if(M.marking_location != "body")
@@ -1933,8 +1901,8 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 				if("m_body_colour")
 					if(S.bodyflags & HAS_BODY_MARKINGS) //Species with body markings/tattoos.
 						var/input = "Choose the colour of your your character's body markings:"
-						var/new_markings = input(user, input, "Character Preference", m_colours["body"]) as color|null
-						if(new_markings)
+						var/new_markings = tgui_input_color(user, input, "Character Preference", m_colours["body"])
+						if(!isnull(new_markings))
 							m_colours["body"] = new_markings
 
 				if("m_style_tail")
@@ -1963,8 +1931,8 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 				if("m_tail_colour")
 					if(S.bodyflags & HAS_TAIL_MARKINGS) //Species with tail markings.
 						var/input = "Choose the colour of your your character's tail markings:"
-						var/new_markings = input(user, input, "Character Preference", m_colours["tail"]) as color|null
-						if(new_markings)
+						var/new_markings = tgui_input_color(user, input, "Character Preference", m_colours["tail"])
+						if(!isnull(new_markings))
 							m_colours["tail"] = new_markings
 
 				if("body_accessory")
@@ -1989,16 +1957,16 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 
 				if("facial")
 					if(species in list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_TAJARAN, SPECIES_SKRELL, SPECIES_MACNINEPERSON, SPECIES_VULPKANIN, SPECIES_VOX)) //Species that have facial hair. (No HAS_HAIR_FACIAL flag)
-						var/new_facial = input(user, "Choose your character's facial-hair colour:", "Character Preference", f_colour) as color|null
-						if(new_facial)
+						var/new_facial = tgui_input_color(user, "Choose your character's facial-hair colour:", "Character Preference", f_colour)
+						if(!isnull(new_facial))
 							f_colour = new_facial
 
 				if("secondary_facial")
 					if(species in list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_TAJARAN, SPECIES_SKRELL, SPECIES_MACNINEPERSON, SPECIES_VULPKANIN, SPECIES_VOX))
 						var/datum/sprite_accessory/facial_hair_style = GLOB.facial_hair_styles_list[f_style]
 						if(facial_hair_style.secondary_theme && !facial_hair_style.no_sec_colour)
-							var/new_facial = input(user, "Choose your character's secondary facial-hair colour:", "Character Preference", f_sec_colour) as color|null
-							if(new_facial)
+							var/new_facial = tgui_input_color(user, "Choose your character's secondary facial-hair colour:", "Character Preference", f_sec_colour)
+							if(!isnull(new_facial))
 								f_sec_colour = new_facial
 
 				if("f_style")
@@ -2009,9 +1977,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 						if(facialhairstyle == "Shaved") //Just in case.
 							valid_facial_hairstyles += facialhairstyle
 							continue
-						if(gender == MALE && SA.gender == FEMALE)
-							continue
-						if(gender == FEMALE && SA.gender == MALE)
+						if(gender == SA.unsuitable_gender)
 							continue
 						if(S.bodyflags & ALL_RPARTS) //Species that can use prosthetic heads.
 							var/head_model
@@ -2038,9 +2004,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 					var/list/valid_underwear = list()
 					for(var/underwear in GLOB.underwear_list)
 						var/datum/sprite_accessory/SA = GLOB.underwear_list[underwear]
-						if(gender == MALE && SA.gender == FEMALE)
-							continue
-						if(gender == FEMALE && SA.gender == MALE)
+						if(gender == SA.unsuitable_gender)
 							continue
 						if(!(species in SA.species_allowed))
 							continue
@@ -2052,17 +2016,15 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 						underwear = new_underwear
 
 				if("underwear_color")
-					var/new_uwear_color = input(user, "Choose your character's underwear colour:", "Character Preference", underwear_color) as color|null
-					if(new_uwear_color)
+					var/new_uwear_color = tgui_input_color(user, "Choose your character's underwear colour:", "Character Preference", underwear_color)
+					if(!isnull(new_uwear_color))
 						underwear_color = new_uwear_color
 
 				if("undershirt")
 					var/list/valid_undershirts = list()
 					for(var/undershirt in GLOB.undershirt_list)
 						var/datum/sprite_accessory/SA = GLOB.undershirt_list[undershirt]
-						if(gender == MALE && SA.gender == FEMALE)
-							continue
-						if(gender == FEMALE && SA.gender == MALE)
+						if(gender == MALE && SA.unsuitable_gender)
 							continue
 						if(!(species in SA.species_allowed))
 							continue
@@ -2074,17 +2036,15 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 						undershirt = new_undershirt
 
 				if("undershirt_color")
-					var/new_ushirt_color = input(user, "Choose your character's undershirt colour:", "Character Preference", undershirt_color) as color|null
-					if(new_ushirt_color)
+					var/new_ushirt_color = tgui_input_color(user, "Choose your character's undershirt colour:", "Character Preference", undershirt_color)
+					if(!isnull(new_ushirt_color))
 						undershirt_color = new_ushirt_color
 
 				if("socks")
 					var/list/valid_sockstyles = list()
 					for(var/sockstyle in GLOB.socks_list)
 						var/datum/sprite_accessory/SA = GLOB.socks_list[sockstyle]
-						if(gender == MALE && SA.gender == FEMALE)
-							continue
-						if(gender == FEMALE && SA.gender == MALE)
+						if(gender == SA.unsuitable_gender)
 							continue
 						if(!(species in SA.species_allowed))
 							continue
@@ -2096,8 +2056,8 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 						socks = new_socks
 
 				if("eyes")
-					var/new_eyes = input(user, "Choose your character's eye colour:", "Character Preference", e_colour) as color|null
-					if(new_eyes)
+					var/new_eyes = tgui_input_color(user, "Choose your character's eye colour:", "Character Preference", e_colour)
+					if(!isnull(new_eyes))
 						e_colour = new_eyes
 
 				if("s_tone")
@@ -2123,19 +2083,24 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 
 				if("skin")
 					if((S.bodyflags & HAS_SKIN_COLOR) || ((S.bodyflags & HAS_BODYACC_COLOR) && GLOB.body_accessory_by_species[species]) || check_rights(R_ADMIN, 0, user))
-						var/new_skin = input(user, "Choose your character's skin colour: ", "Character Preference", s_colour) as color|null
-						if(new_skin)
+						var/new_skin = tgui_input_color(user, "Choose your character's skin colour: ", "Character Preference", s_colour)
+						if(!isnull(new_skin))
 							s_colour = new_skin
 
 				if("ooccolor")
-					var/new_ooccolor = input(user, "Choose your OOC colour:", "Game Preference", ooccolor) as color|null
-					if(new_ooccolor)
+					var/new_ooccolor = tgui_input_color(user, "Choose your OOC colour:", "Game Preference", ooccolor)
+					if(!isnull(new_ooccolor))
 						ooccolor = new_ooccolor
 
 				if("bag")
 					var/new_backbag = tgui_input_list(user, "Choose your character's style of bag:", "Character Preference", GLOB.backbaglist)
 					if(new_backbag)
 						backbag = new_backbag
+
+				if("loadout")
+					var/datum/ui_module/loadout/loadout = new()
+					loadout.ui_interact(user)
+					return FALSE
 
 				if("nt_relation")
 					var/new_relation = tgui_input_list(user, "Choose your relation to NT. Note that this represents what others can find out about your character by researching your background, not what your character actually thinks.", "Character Preference", list("Loyal", "Supportive", "Neutral", "Skeptical", "Opposed"))
@@ -2393,6 +2358,16 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 							gender = FEMALE
 						else
 							gender = MALE
+
+					var/datum/robolimb/robohead
+					if(S.bodyflags & ALL_RPARTS)
+						var/head_model = "[!rlimb_data["head"] ? "Morpheus Cyberkinetics" : rlimb_data["head"]]"
+						robohead = GLOB.all_robolimbs[head_model]
+
+					h_style = random_hair_style(gender, S, robohead)
+					f_style = random_facial_hair_style(gender, species, robohead)
+
+					m_styles["body"] = random_marking_style("body", species, gender = src.gender)
 					underwear = random_underwear(gender)
 
 				if("hear_adminhelps")
@@ -2444,6 +2419,11 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 					toggles2 ^= PREFTOGGLE_2_ENABLE_TGUI_SAY_LIGHT_MODE
 					user?.client?.tgui_say?.load()
 
+				if("pixelated_menu")
+					toggles2 ^= PREFTOGGLE_2_PIXELATED_MENU
+					if(user?.client)
+						SStitle?.show_title_screen_to(user.client)
+
 				if("ghost_att_anim")
 					toggles2 ^= PREFTOGGLE_2_ITEMATTACK
 
@@ -2476,8 +2456,8 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 					toggles2 ^= PREFTOGGLE_2_AFKWATCH
 
 				if("UIcolor")
-					var/UI_style_color_new = input(user, "Choose your UI color, dark colors are not recommended!", UI_style_color) as color|null
-					if(!UI_style_color_new) return
+					var/UI_style_color_new = tgui_input_color(user, "Choose your UI color, dark colors are not recommended!", UI_style_color)
+					if(isnull(UI_style_color_new)) return
 					UI_style_color = UI_style_color_new
 
 					if(ishuman(usr)) //mid-round preference changes, for aesthetics
@@ -2504,9 +2484,6 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 
 				if("randomslot")
 					toggles2 ^= PREFTOGGLE_2_RANDOMSLOT
-					if(isnewplayer(usr))
-						var/mob/new_player/N = usr
-						N.new_player_panel_proc()
 
 				if("hear_midis")
 					sound ^= SOUND_MIDI
@@ -2564,9 +2541,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 						real_name = random_name(gender)
 						save_character(user)
 					close_load_dialog(user)
-					if(isnewplayer(user))
-						var/mob/new_player/N = user
-						N.new_player_panel_proc()
+					user.client << output(real_name, "title_browser:update_current_character")
 
 				if("tab")
 					if(href_list["tab"])
@@ -2624,7 +2599,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 
 					for(var/group_key as anything in my_hud.master_groups)
 						var/datum/plane_master_group/group = my_hud.master_groups[group_key]
-						group.transform_lower_turfs(my_hud, my_hud.current_plane_offset)
+						group.build_planes_offset(my_hud, my_hud.current_plane_offset)
 
 				if("parallax_multiz")
 					toggles2 ^= PREFTOGGLE_2_PARALLAX_MULTIZ
@@ -2634,7 +2609,7 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 
 					for(var/group_key as anything in my_hud.master_groups)
 						var/datum/plane_master_group/group = my_hud.master_groups[group_key]
-						group.transform_lower_turfs(my_hud, my_hud.current_plane_offset)
+						group.build_planes_offset(my_hud, my_hud.current_plane_offset)
 
 				if("keybindings")
 					if(!keybindings_overrides)
@@ -2777,8 +2752,6 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 						var/datum/preference_toggle/toggle = locateUID(href_list["toggle"])
 						toggle.set_toggles(user.client)
 
-
-
 	ShowChoices(user)
 	return TRUE
 
@@ -2863,13 +2836,6 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 				I.robotize()
 
 	character.dna.blood_type = b_type
-
-	// Wheelchair necessary?
-	var/obj/item/organ/external/l_foot = character.get_organ(BODY_ZONE_PRECISE_L_FOOT)
-	var/obj/item/organ/external/r_foot = character.get_organ(BODY_ZONE_PRECISE_R_FOOT)
-	if(!l_foot && !r_foot)
-		var/obj/structure/chair/wheelchair/W = new /obj/structure/chair/wheelchair(character.loc)
-		W.buckle_mob(character, TRUE)
 
 	character.underwear = underwear
 	character.color_underwear = underwear_color
@@ -2956,6 +2922,12 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 
 	if((disabilities & DISABILITY_FLAG_WINGDINGS) && !(new_species.blacklisted_disabilities & DISABILITY_FLAG_WINGDINGS))
 		character.force_gene_block(GLOB.wingdingsblock, TRUE, TRUE)
+
+	if((disabilities & DISABILITY_FLAG_PARAPLEGIA) && !(new_species.blacklisted_disabilities & DISABILITY_FLAG_PARAPLEGIA))
+		character.force_gene_block(GLOB.paraplegiablock, TRUE, TRUE)
+
+	if((disabilities & DISABILITY_FLAG_APHASIA) && !(new_species.blacklisted_disabilities & DISABILITY_FLAG_APHASIA))
+		character.force_gene_block(GLOB.aphasiablock, TRUE, TRUE)
 
 	character.dna.species.handle_dna(character)
 

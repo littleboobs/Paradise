@@ -5,6 +5,7 @@
 	max_grab = GRAB_KILL
 	slowed_by_pull_and_push = FALSE
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/monstermeat/xenomeat= 5, /obj/item/stack/sheet/animalhide/xeno = 1)
+	hud_type = /datum/hud/alien
 	var/obj/item/r_store = null
 	var/obj/item/l_store = null
 	var/caste = ""
@@ -146,8 +147,6 @@ GLOBAL_LIST_INIT(strippable_alien_humanoid_items, create_strippable_list(list(
 	if(!isliving(target) || !pulling || (pulling && pulling != target))
 		return FALSE
 	if(incapacitated() || grab_state < GRAB_AGGRESSIVE || stat != CONSCIOUS)
-		return FALSE
-	if(get_dir(src, target) != dir) // Gotta face em 4head
 		return FALSE
 	return TRUE
 

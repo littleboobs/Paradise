@@ -31,6 +31,7 @@ This applies to all STANDARD station areas
 	base_lighting_alpha = 255
 	hide_attacklogs = TRUE
 	has_gravity = STANDARD_GRAVITY
+	area_flags = NONE
 
 
 /area/adminconstruction
@@ -42,6 +43,7 @@ This applies to all STANDARD station areas
 	base_lighting_alpha = 255
 	hide_attacklogs = TRUE
 	has_gravity = STANDARD_GRAVITY
+	area_flags = NONE
 
 /area/space
 	icon_state = "space"
@@ -57,7 +59,7 @@ This applies to all STANDARD station areas
 	outdoors = TRUE
 	ambientsounds = SPACE_SOUNDS
 	sound_environment = SOUND_AREA_SPACE
-	there_can_be_many = TRUE
+	area_flags = UNIQUE_AREA
 
 /area/space/nearstation
 	icon_state = "space_near"
@@ -89,7 +91,6 @@ This applies to all STANDARD station areas
 	valid_territory = FALSE
 	has_gravity = STANDARD_GRAVITY
 	static_lighting = TRUE
-	parallax_movedir = NORTH
 	sound_environment = SOUND_ENVIRONMENT_ROOM
 
 /area/shuttle/arrival
@@ -103,6 +104,7 @@ This applies to all STANDARD station areas
 
 /area/shuttle/auxillary_base
 	icon_state = "shuttle"
+	area_flags = NONE
 
 /area/shuttle/escape
 	name = "Emergency Shuttle"
@@ -187,8 +189,6 @@ This applies to all STANDARD station areas
 
 /area/shuttle/transport
 	icon_state = "shuttle"
-	name = "Transport Shuttle"
-	parallax_movedir = EAST
 
 /area/shuttle/transport1
 	icon_state = "shuttle"
@@ -198,11 +198,13 @@ This applies to all STANDARD station areas
 	icon_state = "shuttle"
 	name = "Alien Shuttle Base"
 	requires_power = 1
+	area_flags = NONE
 
 /area/shuttle/alien/mine
 	icon_state = "shuttle"
 	name = "Alien Shuttle Mine"
 	requires_power = 1
+	area_flags = NONE
 
 /area/shuttle/gamma
 	icon_state = "shuttle"
@@ -225,6 +227,7 @@ This applies to all STANDARD station areas
 	name = "Special Ops Shuttle"
 	icon_state = "shuttlered"
 	parallax_movedir = EAST
+	area_flags = NONE
 
 /area/shuttle/specops/centcom
 	name = "Special Ops Shuttle"
@@ -239,6 +242,7 @@ This applies to all STANDARD station areas
 	icon_state = "shuttlered"
 	nad_allowed = TRUE
 	parallax_movedir = SOUTH
+	area_flags = NONE
 
 /area/shuttle/syndicate_elite/mothership
 	name = "Syndicate Elite Shuttle"
@@ -253,6 +257,7 @@ This applies to all STANDARD station areas
 	icon_state = "shuttlered"
 	nad_allowed = TRUE
 	parallax_movedir = SOUTH
+	area_flags = NONE
 
 /area/shuttle/assault_pod
 	name = "Steel Rain"
@@ -266,6 +271,7 @@ This applies to all STANDARD station areas
 	name = "Nanotrasen Vessel"
 	icon_state = "shuttlered"
 	parallax_movedir = WEST
+	area_flags = NONE
 
 /area/shuttle/administration/centcom
 	name = "Nanotrasen Vessel Centcom"
@@ -277,6 +283,7 @@ This applies to all STANDARD station areas
 
 /area/shuttle/thunderdome
 	name = "honk"
+	area_flags = NONE
 
 /area/shuttle/thunderdome/grnshuttle
 	name = "Thunderdome GRN Shuttle"
@@ -316,6 +323,7 @@ This applies to all STANDARD station areas
 /area/shuttle/vox
 	name = "Vox Skipjack"
 	icon_state = "shuttle"
+	area_flags = NONE
 
 /area/shuttle/vox/station
 	name = "Vox Skipjack"
@@ -324,6 +332,7 @@ This applies to all STANDARD station areas
 /area/shuttle/salvage
 	name = "Salvage Ship"
 	icon_state = "yellow"
+	area_flags = NONE
 
 /area/shuttle/salvage/start
 	name = "Middle of Nowhere"
@@ -364,7 +373,6 @@ This applies to all STANDARD station areas
 /area/shuttle/salvage/abandoned_ship
 	name = "Abandoned Ship"
 	icon_state = "yellow"
-	parallax_movedir = WEST
 
 /area/shuttle/salvage/clown_asteroid
 	name = "Clown Asteroid"
@@ -381,31 +389,36 @@ This applies to all STANDARD station areas
 /area/shuttle/supply
 	name = "Supply Shuttle"
 	icon_state = "shuttle3"
+	area_flags = NONE
 
 /area/shuttle/ussp
 	name = "USSP Shuttle"
 	icon_state = "shuttle3"
+	area_flags = NONE
 
 /area/shuttle/spacebar
 	name = "Space Bar Shuttle"
 	icon_state = "shuttle3"
+	area_flags = NONE
 
 /area/shuttle/abandoned
 	name = "Abandoned Ship"
 	icon_state = "shuttle"
+	area_flags = NONE
 
 /area/shuttle/syndicate
 	name = "Syndicate Nuclear Team Shuttle"
 	icon_state = "shuttle"
 	nad_allowed = TRUE
+	area_flags = NONE
 
 /area/shuttle/trade
 	name = "Trade Shuttle"
 	icon_state = "shuttle"
+	area_flags = NONE
 
 /area/shuttle/trade/sol
 	name = "Sol Freighter"
-	parallax_movedir = WEST
 
 /area/shuttle/freegolem
 	name = "Free Golem Ship"
@@ -415,6 +428,15 @@ This applies to all STANDARD station areas
 /area/shuttle/pirate_corvette
 	name = "Pirate Corvette"
 	icon_state = "shuttle"
+	area_flags = NONE
+
+/area/shuttle/transit
+	name = "Hyperspace"
+	desc = "Weeeeee"
+	static_lighting = FALSE
+	base_lighting_color = COLOR_WHITE
+	base_lighting_alpha = 255
+
 
 /area/airtunnel1/      // referenced in airtunnel.dm:759
 
@@ -441,6 +463,7 @@ This applies to all STANDARD station areas
 	base_lighting_alpha = 255
 	nad_allowed = TRUE
 	has_gravity = STANDARD_GRAVITY
+	area_flags = NONE
 
 // New CC
 /area/centcom/bridge
@@ -501,6 +524,52 @@ This applies to all STANDARD station areas
 /area/centcom/shuttle
 	name = "Centcom Administration Shuttle"
 
+/area/centcom/supplypod/supplypod_temp_holding
+	name = "Supplypod Shipping Lane"
+	icon_state = "supplypod_flight"
+	area_flags = UNIQUE_AREA
+
+/area/centcom/supplypod
+	name = "Supplypod Facility"
+	icon_state = "supplypod"
+
+/area/centcom/supplypod/pod_storage
+	name = "Supplypod Storage"
+	icon_state = "supplypod_holding"
+
+/area/centcom/supplypod/loading
+	name = "Supplypod Loading Facility"
+	icon_state = "supplypod_loading"
+	var/loading_id = ""
+
+/area/centcom/supplypod/loading/Initialize(mapload)
+	. = ..()
+	if(!loading_id)
+		CRASH("[type] created without a loading_id")
+	if(GLOB.supplypod_loading_bays[loading_id])
+		CRASH("Duplicate loading bay area: [type] ([loading_id])")
+	GLOB.supplypod_loading_bays[loading_id] = src
+
+/area/centcom/supplypod/loading/one
+	name = "Bay #1"
+	loading_id = "1"
+
+/area/centcom/supplypod/loading/two
+	name = "Bay #2"
+	loading_id = "2"
+
+/area/centcom/supplypod/loading/three
+	name = "Bay #3"
+	loading_id = "3"
+
+/area/centcom/supplypod/loading/four
+	name = "Bay #4"
+	loading_id = "4"
+
+/area/centcom/supplypod/loading/ert
+	name = "ERT Bay"
+	loading_id = "5"
+
 //SYNDICATES
 
 /area/syndicate_mothership
@@ -513,6 +582,7 @@ This applies to all STANDARD station areas
 	base_lighting_color = COLOR_WHITE
 	nad_allowed = TRUE
 	ambientsounds = HIGHSEC_SOUNDS
+	area_flags = NONE
 
 /area/syndicate_mothership/outside
 	name = "Syndicate Controlled Territory"
@@ -552,6 +622,7 @@ This applies to all STANDARD station areas
 	base_lighting_alpha = 255
 	base_lighting_color = COLOR_WHITE
 	ambientsounds = HIGHSEC_SOUNDS
+	area_flags = NONE
 
 // Chrono
 
@@ -564,6 +635,7 @@ This applies to all STANDARD station areas
 	base_lighting_color = COLOR_WHITE
 	base_lighting_alpha = 255
 	nad_allowed = TRUE
+	area_flags = NONE
 
 //EXTRA
 
@@ -576,6 +648,7 @@ This applies to all STANDARD station areas
 	base_lighting_color = COLOR_WHITE
 	base_lighting_alpha = 255
 	nad_allowed = TRUE
+	area_flags = NONE
 
 /area/asteroid					// -- TLE
 	name = "Asteroid"
@@ -605,6 +678,7 @@ This applies to all STANDARD station areas
 	base_lighting_color = COLOR_WHITE
 	base_lighting_alpha = 255
 	hide_attacklogs = TRUE
+	area_flags = NONE
 
 
 /area/tdome/arena_source
@@ -642,8 +716,9 @@ This applies to all STANDARD station areas
 /area/exploration/methlab
 	name = "Abandoned Drug Lab"
 	icon_state = "green"
-	there_can_be_many = TRUE
+	area_flags = UNIQUE_AREA
 	has_gravity = STANDARD_GRAVITY
+	area_flags = NONE
 
 //Abductors
 /area/abductor_ship
@@ -651,6 +726,7 @@ This applies to all STANDARD station areas
 	icon_state = "yellow"
 	requires_power = FALSE
 	has_gravity = STANDARD_GRAVITY
+	area_flags = NONE
 
 /area/wizard_station
 	name = "Wizard's Den"
@@ -672,6 +748,7 @@ This applies to all STANDARD station areas
 	base_lighting_color = COLOR_WHITE
 	sound_environment = SOUND_AREA_MEDIUM_SOFTFLOOR
 	nad_allowed = TRUE
+	area_flags = NONE
 
 /area/ninja/outpost
 	name = "SpiderClan Dojo"
@@ -699,6 +776,7 @@ This applies to all STANDARD station areas
 	base_lighting_color = COLOR_WHITE
 	base_lighting_alpha = 255
 	no_teleportlocs = TRUE
+	area_flags = NONE
 
 /area/trader_station
 	name = "Trade Base"
@@ -708,6 +786,7 @@ This applies to all STANDARD station areas
 	static_lighting = FALSE
 	base_lighting_alpha = 255
 	base_lighting_color = COLOR_WHITE
+	area_flags = NONE
 
 /area/trader_station/sol
 	name = "Jupiter Station 6"
@@ -720,6 +799,7 @@ This applies to all STANDARD station areas
 	static_lighting = FALSE
 	base_lighting_alpha = 255
 	base_lighting_color = COLOR_WHITE
+	area_flags = NONE
 
 /area/ussp_centcom/secretariat
 	name = "Soviet secretariat"
@@ -821,6 +901,10 @@ This applies to all STANDARD station areas
 
 /area/maintenance/asmaint5
 	name = "Arrivals Maintenance"
+	icon_state = "asmaint"
+
+/area/maintenance/asmaint6
+	name = "RnD Restroom Maintenance"
 	icon_state = "asmaint"
 
 /area/maintenance/apmaint
@@ -1131,6 +1215,30 @@ This applies to all STANDARD station areas
 /area/hallway/primary/central/sw
 /area/hallway/primary/central/se
 
+/area/hallway/primary/command
+	name = "Command Primary Hallway"
+	icon_state = "hallC"
+
+/area/hallway/primary/command/north
+/area/hallway/primary/command/south
+/area/hallway/primary/command/west
+/area/hallway/primary/command/east
+/area/hallway/primary/command/nw
+/area/hallway/primary/command/ne
+
+/area/hallway/primary/central/second
+	name = "Second Floor Central Primary Hallway"
+	icon_state = "hallC"
+
+/area/hallway/primary/central/second/north
+/area/hallway/primary/central/second/south
+/area/hallway/primary/central/second/west
+/area/hallway/primary/central/second/east
+/area/hallway/primary/central/second/nw
+/area/hallway/primary/central/second/ne
+/area/hallway/primary/central/second/sw
+/area/hallway/primary/central/second/se
+
 /area/hallway/spacebridge
 	sound_environment = SOUND_AREA_LARGE_ENCLOSED
 	icon_state = "hall_space"
@@ -1170,6 +1278,9 @@ This applies to all STANDARD station areas
 
 /area/hallway/spacebridge/comeng
 	name = "Command-Engineering Bridge"
+
+/area/hallway/spacebridge/comcar
+	name = "Command-Cargo Bridge"
 
 /area/hallway/secondary/exit
 	name = "Escape Shuttle Hallway"
@@ -1349,6 +1460,21 @@ This applies to all STANDARD station areas
 	icon_state = "toilet"
 	sound_environment = SOUND_AREA_SMALL_ENCLOSED
 
+/area/crew_quarters/toilet2
+	name = "West Toilets"
+	icon_state = "toilet"
+	sound_environment = SOUND_AREA_SMALL_ENCLOSED
+
+/area/crew_quarters/toilet3
+	name = "Theatre Toilets"
+	icon_state = "toilet"
+	sound_environment = SOUND_AREA_SMALL_ENCLOSED
+
+/area/crew_quarters/toilet4
+	name = "Arrivals Toilets"
+	icon_state = "toilet"
+	sound_environment = SOUND_AREA_SMALL_ENCLOSED
+
 /area/crew_quarters/sleep
 	name = "Dormitories"
 	icon_state = "Sleep"
@@ -1444,6 +1570,12 @@ This applies to all STANDARD station areas
 /area/chapel/office
 	name = "Chapel Office"
 	icon_state = "chapeloffice"
+
+/area/chapel/morgue
+	name = "Chapel Morgue"
+
+/area/chapel/massdriver
+	name = "Chapel Mass Driver"
 
 /area/escapepodbay
 	name = "Escape Shuttle Hallway Podbay"
@@ -1587,65 +1719,65 @@ This applies to all STANDARD station areas
 
 
 //Engineering
-/area/engine
+/area/engineering
 	ambientsounds = ENGINEERING_SOUNDS
 	sound_environment = SOUND_AREA_LARGE_ENCLOSED
 
-/area/engine/engine_smes
+/area/engineering/engine/smes
 	name = "Engineering SMES"
 	icon_state = "engine_smes"
 
-/area/engine/engineering
+/area/engineering/engine
 	name = "Engineering"
 	icon_state = "engine_smes"
 
-/area/engine/engineering/monitor
+/area/engineering/engine/monitor
 	name = "Engineering Monitoring Room"
 	icon_state = "engine_control"
 
-/area/engine/break_room
+/area/engineering/break_room
 	name = "Engineering Foyer"
 	icon_state = "engine"
 	sound_environment = SOUND_AREA_SMALL_ENCLOSED
 
-/area/engine/aienter
+/area/engineering/aienter
 	name = "AI Sattelit Access Point"
 	icon_state = "engine"
 
-/area/engine/equipmentstorage
+/area/engineering/equipmentstorage
 	name = "Engineering Equipment Storage"
 	icon_state = "storage"
 	sound_environment = SOUND_AREA_SMALL_ENCLOSED
 
-/area/engine/hardsuitstorage
+/area/engineering/hardsuitstorage
 	name = "Engineering Hardsuit Storage"
 	icon_state = "storage"
 
-/area/engine/controlroom
+/area/engineering/controlroom
 	name = "Engineering Control Room"
 	icon_state = "engine_control"
 
-/area/engine/gravitygenerator
+/area/engineering/gravitygenerator
 	name = "Gravity Generator"
 	icon_state = "engine"
 
-/area/engine/chiefs_office
+/area/engineering/chiefs_office
 	name = "Chief Engineer's Office"
 	icon_state = "engine_control"
 
-/area/engine/mechanic_workshop
+/area/engineering/mechanic_workshop
 	name = "Mechanic Workshop"
 	icon_state = "engine"
 
-/area/engine/mechanic_workshop/expedition
+/area/engineering/mechanic_workshop/expedition
 	name = "Hangar Expedition"
 	icon_state = "engine"
 
-/area/engine/mechanic_workshop/hangar
+/area/engineering/mechanic_workshop/hangar
 	name = "Hangаr Bay"
 	icon_state = "engine"
 
-/area/engine/supermatter
+/area/engineering/supermatter
 	name = "Supermatter Engine"
 	icon_state = "engine"
 	sound_environment = SOUND_AREA_SMALL_ENCLOSED
@@ -1789,7 +1921,7 @@ This applies to all STANDARD station areas
 	name = "Unknown Teleporter"
 	icon_state = "teleporter"
 	ambientsounds = list('sound/ambience/ambimalf.ogg', 'sound/ambience/signal.ogg')
-	there_can_be_many = TRUE
+	area_flags = UNIQUE_AREA
 
 /area/toxins/explab
 	name = "E.X.P.E.R.I-MENTOR Lab"
@@ -1835,6 +1967,10 @@ This applies to all STANDARD station areas
 
 /area/medical/medbreak
 	name = "Break Room"
+	icon_state = "medbaybreak"
+
+/area/medical/medrest
+	name = "Med Restroom"
 	icon_state = "medbaybreak"
 
 /area/medical/patients_rooms
@@ -2073,7 +2209,7 @@ This applies to all STANDARD station areas
 
 /area/security/visiting_room
 	name = "Visiting Room"
-	icon_state = "red"
+	icon_state = "visiting-room"
 
 /area/security/prisonlockers
 	name = "Prisoner Lockers"
@@ -2386,7 +2522,7 @@ This applies to all STANDARD station areas
 /area/djstation
 	name = "Ruskie DJ Station"
 	icon_state = "DJ"
-	there_can_be_many = TRUE
+	area_flags = UNIQUE_AREA
 	has_gravity = STANDARD_GRAVITY
 
 /area/djstation/solars
@@ -2509,7 +2645,7 @@ This applies to all STANDARD station areas
 /area/derelict/teleporter
 	name = "Derelict Teleporter"
 	icon_state = "teleporter"
-	there_can_be_many = TRUE
+	area_flags = UNIQUE_AREA
 
 /area/derelict/annex
 	name = "Derelict Annex"
@@ -2604,6 +2740,7 @@ This applies to all STANDARD station areas
 	icon_state = "syndie_hall"
 	report_alerts = FALSE
 	has_gravity = STANDARD_GRAVITY
+	area_flags = NONE
 
 /area/traitor/rnd
 	name = "Syndicate Research and Development"
@@ -2671,6 +2808,10 @@ This applies to all STANDARD station areas
 
 /area/aisat
 	name = "AI Satellite Hallway"
+	icon_state = "yellow"
+
+/area/aisat/aihallway
+	name = "AI Satellite Exterior Hallway"
 	icon_state = "yellow"
 
 /area/aisat/entrance
@@ -2773,7 +2914,7 @@ This applies to all STANDARD station areas
 	has_gravity = STANDARD_GRAVITY
 	ambientsounds = AWAY_MISSION_SOUNDS
 	sound_environment = SOUND_ENVIRONMENT_ROOM
-
+	area_flags = NONE
 /area/awaymission/example
 	name = "Strange Station"
 	icon_state = "away"
@@ -2801,6 +2942,7 @@ This applies to all STANDARD station areas
 	name = "moonoutpost"
 	has_gravity = STANDARD_GRAVITY
 	report_alerts = FALSE
+	area_flags = NONE
 
 /area/moonoutpost19/mo19arrivals
 	name = "MO19 Arrivals"
@@ -2820,6 +2962,7 @@ This applies to all STANDARD station areas
 	power_light = FALSE
 	poweralm = FALSE
 	outdoors = TRUE
+	area_flags = NONE
 
 /area/moonoutpost19/syndicateoutpost
 	name = "Syndicate Outpost"
@@ -2885,6 +3028,7 @@ This applies to all STANDARD station areas
 	name = "space"
 	report_alerts = FALSE
 	has_gravity = STANDARD_GRAVITY
+	area_flags = NONE
 
 /area/awaycontent/a1
 	icon_state = "awaycontent1"
@@ -3004,6 +3148,7 @@ GLOBAL_LIST_INIT(centcom_areas, list(
 	static_lighting = TRUE
 	report_alerts = FALSE
 	has_gravity = STANDARD_GRAVITY
+	area_flags = NONE
 
 /area/special_event/alpha
 	name = "Special event area Alpha"

@@ -21,8 +21,7 @@
 
 /obj/structure/closet/wardrobe/miner
 	name = "mining wardrobe"
-	icon_state = "closed"
-	custom_door_overlay = "mixed"
+	icon_state = "mine_ward"
 
 /obj/structure/closet/wardrobe/miner/populate_contents()
 	new /obj/item/storage/backpack/duffel(src)
@@ -61,7 +60,7 @@
 
 /obj/machinery/computer/shuttle/mining
 	name = "Mining Shuttle Console"
-	desc = "Used to call and send the mining shuttle."
+	desc = "Используется для вызова и отправки шахтёрского шаттла."
 	circuit = /obj/item/circuitboard/mining_shuttle
 	shuttleId = "mining"
 	possible_destinations = "mining_home;mining_away"

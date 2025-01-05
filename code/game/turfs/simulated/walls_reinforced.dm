@@ -21,6 +21,11 @@
 	var/d_state = RWALL_INTACT
 	var/can_be_reinforced = 1
 
+/turf/simulated/wall/r_wall/ComponentInitialize()
+	. = ..()
+	AddComponent(/datum/component/blob_turf_consuming, 3)
+
+
 /turf/simulated/wall/r_wall/examine(mob/user)
 	. = ..()
 	switch(d_state)
@@ -210,6 +215,8 @@
 
 /turf/simulated/wall/r_wall/try_decon(obj/item/I, mob/user, params)
 	if(d_state != RWALL_COVER && d_state != RWALL_SUPPORT_RODS)	//Plasma cutter only works in the deconstruction steps!
+		return FALSE
+	if(!istype(I, /obj/item/weldingtool))
 		return FALSE
 	if(d_state == RWALL_COVER)
 		to_chat(user, span_notice("You begin slicing through the metal cover..."))

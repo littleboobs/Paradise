@@ -96,6 +96,7 @@
 		/obj/item/mecha_parts/mecha_equipment/medical/syringe_gun_upgrade, //You can't put this without syringe gun
 		/obj/item/mecha_parts/mecha_equipment/servo_hydra_actuator,
 		/obj/item/mecha_parts/mecha_equipment/improved_exosuit_control_system,
+		/obj/item/mecha_parts/mecha_equipment/medical/beamgun,
 	)
 
 /datum/quest_mech/gygax
@@ -117,6 +118,7 @@
 		/obj/item/mecha_parts/mecha_equipment/weapon/energy/immolator,
 		/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/carbine,
 		/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/scattershot,
+		/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/scattershot/riot,
 		/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/lmg,
 		/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/amlg,
 		/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack,
@@ -141,6 +143,7 @@
 		/obj/item/mecha_parts/mecha_equipment/weapon/energy/immolator,
 		/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/carbine,
 		/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/scattershot,
+		/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/scattershot/riot,
 		/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/lmg,
 		/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/amlg,
 		/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack,

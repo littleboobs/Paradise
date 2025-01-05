@@ -340,7 +340,8 @@
 	if(!real_name) real_name = random_name(gender,species)
 	be_random_name	= sanitize_integer(be_random_name, 0, 1, initial(be_random_name))
 	gender			= sanitize_gender(gender, FALSE, !SP.has_gender)
-	age				= sanitize_integer(age, AGE_MIN, AGE_MAX, initial(age))
+	var/age_limits = get_age_limits(SP, list(SPECIES_AGE_MIN, SPECIES_AGE_MAX, JOB_MIN_AGE_COMMAND))
+	age				= sanitize_integer(age, age_limits[SPECIES_AGE_MIN], age_limits[SPECIES_AGE_MAX], age_limits[JOB_MIN_AGE_COMMAND])
 	h_colour		= sanitize_hexcolor(h_colour)
 	h_sec_colour	= sanitize_hexcolor(h_sec_colour)
 	f_colour		= sanitize_hexcolor(f_colour)
@@ -413,8 +414,8 @@
 		if(!istype(geartype))
 			loadout_gear -= gear // Delete wrong/outdated data
 			continue
-		if(geartype.donator_tier > parent.donator_level && parent.prefs)
-			loadout_gear -= gear // Gagaga, donate again
+		if(!geartype.can_select(cl = parent, species_name = species, silent = TRUE)) // all other checks, no jobs in prefs, be quiet
+			loadout_gear -= gear
 			continue
 		var/datum/gear/new_gear = new geartype.type
 		for(var/tweak in loadout_gear[gear])

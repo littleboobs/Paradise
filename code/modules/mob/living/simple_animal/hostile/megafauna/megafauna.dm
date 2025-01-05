@@ -16,8 +16,6 @@
 	stat_attack = DEAD
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
 	damage_coeff = list(BRUTE = 1, BURN = 0.5, TOX = 1, CLONE = 1, STAMINA = 0, OXY = 1)
-	minbodytemp = 0
-	maxbodytemp = INFINITY
 	vision_range = 5
 	aggro_vision_range = 18
 	move_force = MOVE_FORCE_OVERPOWERING
@@ -55,6 +53,13 @@
 	for(var/action_type in attack_action_types)
 		var/datum/action/innate/megafauna_attack/attack_action = new action_type()
 		attack_action.Grant(src)
+
+/mob/living/simple_animal/hostile/megafauna/ComponentInitialize()
+	AddComponent( \
+		/datum/component/animal_temperature, \
+		maxbodytemp = INFINITY, \
+		minbodytemp = 0, \
+	)
 
 /mob/living/simple_animal/hostile/megafauna/Destroy()
 	QDEL_NULL(internal_gps)
@@ -112,14 +117,17 @@
 	if(!istype(get_area(src), /area/shuttle)) //I'll be funny and make non teleported enrage mobs not lose enrage. Harder to pull off, and also funny when it happens accidently. Or if one gets on the escape shuttle.
 		unrage()
 
-/mob/living/simple_animal/hostile/megafauna/onShuttleMove(turf/oldT, turf/T1, rotation, mob/caller)
+/mob/living/simple_animal/hostile/megafauna/onShuttleMove(turf/oldT, turf/T1, rotation, mob/requester)
 	var/turf/oldloc = loc
 	. = ..()
+
 	if(!.)
 		return
+
 	var/turf/newloc = loc
-	mob_attack_logs += "[time_stamp()] Moved via shuttle from [COORD(oldloc)] to [COORD(newloc)] caller: [caller ? "[caller]" : "unknown" ]"
-	message_admins("Megafauna[stat == DEAD ? "(DEAD)" : null] [src] ([ADMIN_FLW(src,"FLW")]) moved via shuttle from [ADMIN_COORDJMP(oldloc)] to [ADMIN_COORDJMP(newloc)][caller ? " called by [ADMIN_LOOKUPFLW(caller)]" : ""]")
+
+	mob_attack_logs += "[time_stamp()] Moved via shuttle from [COORD(oldloc)] to [COORD(newloc)] requester: [requester ? "[requester]" : "unknown" ]"
+	message_admins("Megafauna[stat == DEAD ? "(DEAD)" : null] [src] ([ADMIN_FLW(src,"FLW")]) moved via shuttle from [ADMIN_COORDJMP(oldloc)] to [ADMIN_COORDJMP(newloc)][requester ? " called by [ADMIN_LOOKUPFLW(requester)]" : ""]")
 
 /mob/living/simple_animal/hostile/megafauna/proc/devour(mob/living/L)
 	if(!L)
@@ -214,8 +222,10 @@
 /// This proc is called by the HRD-MDE grenade to enrage the megafauna. This should increase the megafaunas attack speed if possible, give it new moves, or disable weak moves. This should be reverseable, and reverses on zlvl change.
 /mob/living/simple_animal/hostile/megafauna/proc/enrage()
 	if(enraged || ((health / maxHealth) * 100 <= 80))
-		return
+		return FALSE
+
 	enraged = TRUE
+	return TRUE
 
 /mob/living/simple_animal/hostile/megafauna/proc/unrage()
 	enraged = FALSE

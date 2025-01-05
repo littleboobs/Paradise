@@ -11,12 +11,17 @@
 	selection_color = "#9f8545"
 	access = list(ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_HEADS_VAULT, ACCESS_ALL_PERSONAL_LOCKERS, ACCESS_HEADS, ACCESS_SEC_DOORS, ACCESS_EVA, ACCESS_MAINT_TUNNELS, ACCESS_MAILSORTING, ACCESS_CARGO, ACCESS_CARGO_BOT, ACCESS_QM, ACCESS_MINT, ACCESS_MINING, ACCESS_MINING_STATION, ACCESS_MINERAL_STOREROOM)
 	minimal_access = list(ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_HEADS_VAULT, ACCESS_ALL_PERSONAL_LOCKERS, ACCESS_HEADS, ACCESS_SECURITY, ACCESS_EVA, ACCESS_MAINT_TUNNELS, ACCESS_MAILSORTING, ACCESS_CARGO, ACCESS_CARGO_BOT, ACCESS_QM, ACCESS_MINT, ACCESS_MINING, ACCESS_MINING_STATION, ACCESS_MINERAL_STOREROOM)
-	min_age_allowed = 30
+	min_age_type = JOB_MIN_AGE_COMMAND
 	exp_requirements = 3000
 	exp_type = EXP_TYPE_CREW
 	alt_titles = list("Chief Supply Manager")
-	money_factor = 6
 	outfit = /datum/outfit/job/qm
+	insurance_type = INSURANCE_TYPE_DELUXE // Always has been.
+
+	//QM IS NOT THE HEAD!!
+	salary = 300
+	min_start_money = 400
+	max_start_money = 700
 
 /datum/outfit/job/qm
 	name = "Quartermaster"
@@ -50,8 +55,11 @@
 	access = list(ACCESS_MAINT_TUNNELS, ACCESS_MAILSORTING, ACCESS_CARGO, ACCESS_CARGO_BOT, ACCESS_MINT, ACCESS_MINING, ACCESS_MINING_STATION, ACCESS_MINERAL_STOREROOM)
 	minimal_access = list(ACCESS_MAINT_TUNNELS, ACCESS_CARGO, ACCESS_CARGO_BOT, ACCESS_MAILSORTING, ACCESS_MINERAL_STOREROOM)
 	alt_titles = list("Supply Manager","Loader")
-	money_factor = 2
 	outfit = /datum/outfit/job/cargo_tech
+
+	salary = 100
+	min_start_money = 100
+	max_start_money = 300
 
 /datum/outfit/job/cargo_tech
 	name = "Cargo Technician"
@@ -75,11 +83,15 @@
 	supervisors = "the quartermaster"
 	department_head = list(JOB_TITLE_QUARTERMASTER)
 	selection_color = "#e2dbc8"
-	access = list(ACCESS_MAILSORTING, ACCESS_CARGO, ACCESS_CARGO_BOT, ACCESS_MINT, ACCESS_MINING, ACCESS_MINING_STATION, ACCESS_MINERAL_STOREROOM)
+	access = list(ACCESS_MAILSORTING, ACCESS_CARGO, ACCESS_CARGO_BOT, ACCESS_MINT, ACCESS_MINING, ACCESS_MINING_STATION, ACCESS_MAINT_TUNNELS, ACCESS_MINERAL_STOREROOM)
 	minimal_access = list(ACCESS_MINING, ACCESS_MINT, ACCESS_MINING_STATION, ACCESS_MAILSORTING, ACCESS_MAINT_TUNNELS, ACCESS_MINERAL_STOREROOM)
 	alt_titles = list("Spelunker")
-	money_factor = 3
 	outfit = /datum/outfit/job/mining
+	insurance_type = INSURANCE_TYPE_EXTENDED
+
+	salary = 100
+	min_start_money = 100
+	max_start_money = 300
 
 /datum/outfit/job/mining
 	name = "Shaft Miner"
@@ -139,11 +151,14 @@
 	supervisors = "the head of personnel"
 	department_head = list(JOB_TITLE_HOP)
 	selection_color = "#d1e8d3"
-	access = list(ACCESS_HYDROPONICS, ACCESS_BAR, ACCESS_KITCHEN, ACCESS_MORGUE, ACCESS_WEAPONS, ACCESS_MINERAL_STOREROOM)
-	minimal_access = list(ACCESS_BAR, ACCESS_WEAPONS, ACCESS_MINERAL_STOREROOM)
+	access = list(ACCESS_HYDROPONICS, ACCESS_BAR, ACCESS_KITCHEN, ACCESS_MORGUE, ACCESS_WEAPONS, ACCESS_MINERAL_STOREROOM, ACCESS_MAINT_TUNNELS)
+	minimal_access = list(ACCESS_BAR, ACCESS_WEAPONS, ACCESS_MINERAL_STOREROOM, ACCESS_MAINT_TUNNELS)
 	alt_titles = list("Barman","Barkeeper","Drink Artist")
-	money_factor = 2
 	outfit = /datum/outfit/job/bartender
+
+	salary = 100
+	min_start_money = 100
+	max_start_money = 300
 
 /datum/outfit/job/bartender
 	name = "Bartender"
@@ -178,11 +193,14 @@
 	supervisors = "the head of personnel"
 	department_head = list(JOB_TITLE_HOP)
 	selection_color = "#d1e8d3"
-	access = list(ACCESS_HYDROPONICS, ACCESS_BAR, ACCESS_KITCHEN, ACCESS_MORGUE)
-	minimal_access = list(ACCESS_KITCHEN)
+	access = list(ACCESS_HYDROPONICS, ACCESS_BAR, ACCESS_KITCHEN, ACCESS_MORGUE, ACCESS_MAINT_TUNNELS)
+	minimal_access = list(ACCESS_KITCHEN, ACCESS_MAINT_TUNNELS)
 	alt_titles = list("Cook","Culinary Artist","Butcher")
-	money_factor = 2
 	outfit = /datum/outfit/job/chef
+
+	salary = 100
+	min_start_money = 100
+	max_start_money = 300
 
 /datum/outfit/job/chef
 	name = "Chef"
@@ -227,13 +245,16 @@
 	supervisors = "the head of personnel"
 	department_head = list(JOB_TITLE_HOP)
 	selection_color = "#d1e8d3"
-	access = list(ACCESS_HYDROPONICS, ACCESS_BAR, ACCESS_KITCHEN, ACCESS_MORGUE)
-	minimal_access = list(ACCESS_HYDROPONICS, ACCESS_MORGUE)
+	access = list(ACCESS_HYDROPONICS, ACCESS_BAR, ACCESS_KITCHEN, ACCESS_MORGUE, ACCESS_MAINT_TUNNELS)
+	minimal_access = list(ACCESS_HYDROPONICS, ACCESS_MORGUE, ACCESS_MAINT_TUNNELS)
 	alt_titles = list("Hydroponicist", "Botanical Researcher")
 	exp_requirements = 300
 	exp_type = EXP_TYPE_CREW
-	money_factor = 2
 	outfit = /datum/outfit/job/hydro
+
+	salary = 100
+	min_start_money = 100
+	max_start_money = 300
 
 /datum/outfit/job/hydro
 	name = "Botanist"
@@ -263,11 +284,14 @@
 	supervisors = "the head of personnel"
 	department_head = list(JOB_TITLE_HOP)
 	selection_color = "#d1e8d3"
-	access = list(ACCESS_CLOWN, ACCESS_THEATRE)
-	minimal_access = list(ACCESS_CLOWN, ACCESS_THEATRE)
+	access = list(ACCESS_CLOWN, ACCESS_THEATRE, ACCESS_MAINT_TUNNELS)
+	minimal_access = list(ACCESS_CLOWN, ACCESS_THEATRE, ACCESS_MAINT_TUNNELS)
 	alt_titles = list("Performance Artist","Comedian","Jester")
-	money_factor = 2
 	outfit = /datum/outfit/job/clown
+
+	salary = 100
+	min_start_money = 100
+	max_start_money = 300
 
 /datum/outfit/job/clown
 	name = "Clown"
@@ -478,11 +502,14 @@
 	supervisors = "the head of personnel"
 	department_head = list(JOB_TITLE_HOP)
 	selection_color = "#d1e8d3"
-	access = list(ACCESS_MIME, ACCESS_THEATRE)
-	minimal_access = list(ACCESS_MIME, ACCESS_THEATRE)
+	access = list(ACCESS_MIME, ACCESS_THEATRE, ACCESS_MAINT_TUNNELS)
+	minimal_access = list(ACCESS_MIME, ACCESS_THEATRE, ACCESS_MAINT_TUNNELS)
 	alt_titles = list("Panthomimist")
-	money_factor = 2
 	outfit = /datum/outfit/job/mime
+
+	salary = 100
+	min_start_money = 100
+	max_start_money = 300
 
 /datum/outfit/job/mime
 	name = "Mime"
@@ -536,8 +563,11 @@
 	access = list(ACCESS_JANITOR, ACCESS_MAINT_TUNNELS)
 	minimal_access = list(ACCESS_JANITOR, ACCESS_MAINT_TUNNELS)
 	alt_titles = list("Custodial Technician","Sanitation Technician")
-	money_factor = 2
 	outfit = /datum/outfit/job/janitor
+
+	salary = 100
+	min_start_money = 100
+	max_start_money = 300
 
 /datum/outfit/job/janitor
 	name = "Janitor"
@@ -560,11 +590,14 @@
 	supervisors = "the head of personnel"
 	department_head = list(JOB_TITLE_HOP)
 	selection_color = "#d1e8d3"
-	access = list(ACCESS_LIBRARY)
-	minimal_access = list(ACCESS_LIBRARY)
+	access = list(ACCESS_LIBRARY, ACCESS_MAINT_TUNNELS)
+	minimal_access = list(ACCESS_LIBRARY, ACCESS_MAINT_TUNNELS)
 	alt_titles = list("Journalist")
-	money_factor = 2
 	outfit = /datum/outfit/job/librarian
+
+	salary = 100
+	min_start_money = 100
+	max_start_money = 300
 
 /datum/outfit/job/librarian
 	name = "Librarian"
@@ -580,34 +613,6 @@
 	backpack_contents = list(
 		/obj/item/videocam = 1)
 
-/datum/job/barber
-	title = JOB_TITLE_BARBER
-	flag = JOB_FLAG_BARBER
-	department_flag = JOBCAT_KARMA
-	total_positions = 1
-	spawn_positions = 1
-	is_service = 1
-	supervisors = "the head of personnel"
-	department_head = list(JOB_TITLE_HOP)
-	selection_color = "#d1e8d3"
-	alt_titles = list("Hair Stylist","Beautician")
-	access = list()
-	minimal_access = list()
-	money_factor = 2
-	outfit = /datum/outfit/job/barber
-
-/datum/outfit/job/barber
-	name = "Barber"
-	jobtype = /datum/job/barber
-
-	uniform = /obj/item/clothing/under/barber
-	shoes = /obj/item/clothing/shoes/black
-	l_ear = /obj/item/radio/headset/headset_service
-	backpack_contents = list(
-		/obj/item/storage/box/lip_stick = 1,
-		/obj/item/storage/box/barber = 1
-	)
-
 /datum/job/explorer
 	title = JOB_TITLE_EXPLORER
 	flag = JOB_FLAG_EXPLORER
@@ -621,6 +626,10 @@
 	minimal_access = list(ACCESS_MAINT_TUNNELS, ACCESS_GATEWAY, ACCESS_EVA, ACCESS_EXTERNAL_AIRLOCKS)
 	outfit = /datum/outfit/job/explorer
 	hidden_from_job_prefs = TRUE
+
+	salary = 100
+	min_start_money = 100
+	max_start_money = 300
 
 /datum/outfit/job/explorer
 	// This outfit is never used, because there are no slots for this job.

@@ -56,17 +56,19 @@
 	var/exp_max = 0	//Max EXP, then hide
 	var/exp_type_max = ""
 
-	var/min_age_allowed = 0
+	var/min_age_type = SPECIES_AGE_MIN
 	var/disabilities_allowed = 1
 	var/transfer_allowed = TRUE // If false, ID computer will always discourage transfers to this job, even if player is eligible
 	var/hidden_from_job_prefs = FALSE // if true, job preferences screen never shows this job.
+	var/list/blocked_race_for_job = list()
 
 	var/admin_only = 0
 	var/spawn_ert = 0
 	var/syndicate_command = 0
 
-	var/money_factor = 1 // multiplier of starting funds
-	var/random_money_factor = FALSE // is miltiplier randomized (from 4x to 0.25x for now)
+	var/salary = 0
+	var/min_start_money = 0
+	var/max_start_money = 0
 
 	var/outfit = null
 
@@ -75,6 +77,9 @@
 	/////////////////////////////////
 	var/required_objectives=list() // Objectives that are ALWAYS added.
 	var/optional_objectives=list() // Objectives that are SOMETIMES added.
+
+	var/insurance = INSURANCE_STANDART
+	var/insurance_type = INSURANCE_TYPE_STANDART
 
 //Only override this proc
 /datum/job/proc/after_spawn(mob/living/carbon/human/H)
@@ -136,9 +141,20 @@
 	return 0
 
 /datum/job/proc/character_old_enough(client/C)
+	. = FALSE
+
+	if(!C)
+		return
+
+	var/datum/species/species = GLOB.all_species[C.prefs.species]
+	if(C.prefs.age >= get_age_limits(species, min_age_type))
+		. = TRUE
+
+
+/datum/job/proc/species_in_blacklist(client/C)
 	if(!C)
 		return FALSE
-	if(C.prefs.age >= min_age_allowed)
+	if(C.prefs.species in blocked_race_for_job)
 		return TRUE
 	return FALSE
 
@@ -193,22 +209,8 @@
 			var/datum/gear/G = H.client.prefs.choosen_gears[gear]
 			if(!istype(G))
 				continue
-			var/permitted = FALSE
 
-			if(G.allowed_roles)
-				if(name in G.allowed_roles)
-					permitted = TRUE
-			else
-				permitted = TRUE
-
-			if(G.whitelisted && G.whitelisted != H.dna.species.name)
-				permitted = FALSE
-
-			if(H.client.donator_level < G?.donator_tier)
-				permitted = FALSE
-
-			if(!permitted)
-				to_chat(H, "<span class='warning'>Your current job, donator tier or whitelist status does not permit you to spawn with [G.display_name]!</span>")
+			if(!G.can_select(cl = H.client, job_name = name, species_name = H.dna.species.name)) // some checks
 				continue
 
 			if(G.implantable) //only works for organ-implants
@@ -218,7 +220,7 @@
 				continue
 
 			if(G.slot)
-				if(H.equip_to_slot_or_del(G.spawn_item(H, H.client.prefs.loadout_gear[G.display_name]), G.slot))
+				if(H.equip_to_slot_or_del(G.spawn_item(H, H.client.prefs.get_gear_metadata(G)), G.slot, TRUE))
 					to_chat(H, "<span class='notice'>Equipping you with [G.display_name]!</span>")
 				else
 					gear_leftovers += G
@@ -237,19 +239,19 @@
 
 	if(gear_leftovers.len)
 		for(var/datum/gear/G in gear_leftovers)
-			var/obj/item/placed_in = G.spawn_item(get_turf(H), H.client.prefs.loadout_gear[G.display_name])
+			var/obj/item/placed_in = G.spawn_item(null, H.client.prefs.get_gear_metadata(G))
 			if(placed_in.equip_to_best_slot(H))
-				to_chat(H, "<span class='notice'>Placing [G.display_name] in your inventory!</span>")
+				to_chat(H, span_notice("Placing [G.display_name] in your inventory!"))
 				continue
 			if(H.put_in_hands(placed_in))
-				to_chat(H, "<span class='notice'>Placing [G.display_name] in your hands!</span>")
+				to_chat(H, span_notice("Placing [G.display_name] in your hands!"))
 				continue
-			to_chat(H, "<span class='danger'>Failed to locate a storage object on your mob, either you spawned with no hands free and no backpack or this is a bug.</span>")
+			to_chat(H, span_danger("Failed to locate a storage object on your mob, either you spawned with no hands free and no backpack or this is a bug."))
 			qdel(placed_in)
 
 		qdel(gear_leftovers)
 
-	return 1
+	return TRUE
 
 /datum/outfit/job/proc/imprint_idcard(mob/living/carbon/human/H)
 	var/datum/job/J = SSjobs.GetJobType(jobtype)

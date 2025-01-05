@@ -52,8 +52,6 @@
 	butcher_results = list(/obj/item/stack/ore/diamond = 5, /obj/item/stack/sheet/animalhide/ashdrake = 10, /obj/item/stack/sheet/sinew = 5, /obj/item/stack/sheet/bone = 30, /obj/item/reagent_containers/food/snacks/carpmeat = 15)
 	deathmessage = "визж%(ит,ат)%, %(его,её,его,их)% глаза мутнеют, крылья превращаются в пыль и %(он,она,оно,они)% пада%(ет,ют)% замертво!"
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_plas" = 0, "max_plas" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
-	minbodytemp = 0
-	maxbodytemp = 3500
 	faction = list("carp")
 	pressure_resistance = 200
 	sentience_type = SENTIENCE_BOSS
@@ -94,6 +92,12 @@
 	AddElement(/datum/element/simple_flying)
 	RegisterSignal(small_sprite, COMSIG_ACTION_TRIGGER, PROC_REF(add_dragon_overlay))
 
+/mob/living/simple_animal/hostile/space_dragon/ComponentInitialize()
+	AddComponent( \
+		/datum/component/animal_temperature, \
+		maxbodytemp = 3500, \
+		minbodytemp = 0, \
+	)
 
 /mob/living/simple_animal/hostile/space_dragon/Process_Spacemove(movement_dir = NONE, continuous_move = FALSE)
 	return TRUE
@@ -235,8 +239,8 @@
  * If an invalid color is given, will re-prompt the dragon until a proper color is chosen.
  */
 /mob/living/simple_animal/hostile/space_dragon/proc/color_selection()
-	chosen_color = input(src,"Какого цвета вы хотите быть?","Выбор цвета", COLOR_WHITE) as color|null
-	if(!chosen_color) //redo proc until we get a color
+	chosen_color = tgui_input_color(src,"Какого цвета вы хотите быть?","Выбор цвета", COLOR_WHITE)
+	if(isnull(chosen_color)) //redo proc until we get a color
 		to_chat(src, span_warning("Этот цвет некорректен, попробуйте еще раз."))
 		color_selection()
 		return

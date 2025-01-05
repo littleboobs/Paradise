@@ -356,19 +356,20 @@
 		edit_admin_permissions()
 
 	else if(href_list["call_shuttle"])
-		if(!check_rights(R_ADMIN))	return
 
+		if(!check_rights(R_ADMIN))
+			return
 
 		switch(href_list["call_shuttle"])
 			if("1")
-				if(SSshuttle.emergency.mode >= SHUTTLE_DOCKED)
+				if(EMERGENCY_AT_LEAST_DOCKED)
 					return
 				SSshuttle.emergency.request()
 				log_admin("[key_name(usr)] called the Emergency Shuttle")
 				message_admins("<span class='adminnotice'>[key_name_admin(usr)] called the Emergency Shuttle to the station</span>")
 
 			if("2")
-				if(SSshuttle.emergency.mode >= SHUTTLE_DOCKED)
+				if(EMERGENCY_AT_LEAST_DOCKED)
 					return
 				switch(SSshuttle.emergency.mode)
 					if(SHUTTLE_CALL)
@@ -1935,20 +1936,21 @@
 		show_player_panel(M)
 
 	else if(href_list["adminplayerobservefollow"])
-		var/client/C = usr.client
-		if(!isobserver(usr))
-			if(!check_rights(R_ADMIN|R_MOD)) // Need to be mod or admin to aghost
-				return
-			C.admin_ghost()
-		var/mob/M = locateUID(href_list["adminplayerobservefollow"])
+		var/client/client = usr.client
 
-		if(!istype(M, /mob))
-			to_chat(usr, "<span class='warning'>This can only be used on instances of type /mob</span>", confidential=TRUE)
+		if(!isobserver(usr))
+			if(!check_rights(R_ADMIN | R_MOD)) // Need to be mod or admin to aghost
+				return
+
+			client.admin_ghost()
+
+		var/mob/mob = locateUID(href_list["adminplayerobservefollow"])
+
+		if(!istype(mob))
+			to_chat(usr, span_warning("This can only be used on instances of type /mob"), confidential = TRUE)
 			return
 
-		var/mob/dead/observer/A = C.mob
-		sleep(5)
-		A.ManualFollow(M)
+		addtimer(CALLBACK(client.mob, TYPE_PROC_REF(/mob, ManualFollow), mob), 5 DECISECONDS)
 
 	else if(href_list["check_antagonist"])
 		check_antagonists()
@@ -1956,12 +1958,13 @@
 	else if(href_list["check_teams"])
 		if(!check_rights(R_ADMIN))
 			return
+
 		check_teams()
 
 	else if(href_list["edit_blob_win_count"])
 		if(!check_rights(R_ADMIN))
 			return
-		var/blob_win_count = input(usr, "Ввидите новое число критической массы","Критическая масса:", SSticker.mode.blob_win_count) as num
+		var/blob_win_count = tgui_input_number(usr, "Ввидите новое число критической массы", "Критическая масса:" , SSticker.mode.blob_win_count)
 		if(!blob_win_count)
 			return
 
@@ -1976,8 +1979,9 @@
 	else if(href_list["send_warning"])
 		if(!check_rights(R_ADMIN))
 			return
-		var/message = stripped_input(usr, "Введите предупреждение", "Предупреждение")
-		if(alert(usr,"Вы действительно хотите отправить предупреждение всем блобам?", "", "Да", "Нет") == "Нет")
+			
+		var/message = tgui_input_text(usr, "Введите предупреждение", "Предупреждение")
+		if(tgui_alert(usr,"Вы действительно хотите отправить предупреждение всем блобам?", "", list("Да", "Нет")) == "Нет")
 			return
 
 		if(!SSticker || !SSticker.mode)
@@ -1990,7 +1994,8 @@
 	else if(href_list["burst_all_blobs"])
 		if(!check_rights(R_ADMIN))
 			return
-		if(alert(usr,"Вы действительно хотите лопнуть всех блобов?", "", "Да", "Нет") == "Нет")
+
+		if(tgui_alert(usr,"Вы действительно хотите лопнуть всех блобов?", "", list("Да", "Нет")) == "Нет")
 			return
 
 		if(!SSticker || !SSticker.mode)
@@ -2003,15 +2008,69 @@
 	else if(href_list["delay_blob_end"])
 		if(!check_rights(R_ADMIN) || !check_rights(R_EVENT))
 			return
-		if(alert(usr,"Вы действительно хотите преостановить конец раунда в случае победы блоба?", "", "Да", "Нет") == "Нет")
+
+		if(!SSticker || !SSticker.mode)
+			return
+
+		var/datum/game_mode/mode = SSticker.mode
+		if(tgui_alert(usr,"Вы действительно хотите [mode.delay_blob_end? "вернуть" : "преостановить"] конец раунда в случае победы блоба?", "", list("Да", "Нет")) == "Нет")
+			return
+
+		if(!mode.delay_blob_end)
+			mode.delay_blob_win()
+		else
+			mode.return_blob_win()
+
+		log_admin("[key_name(usr)] has [mode.delay_blob_end? "stopped" : "returned"] stopped delayed blob win")
+		message_admins("[key_name_admin(usr)] has [mode.delay_blob_end? "stopped" : "returned"] delayed blob win")
+
+	else if(href_list["toggle_blob_infinity_points"])
+		if(!check_rights(R_ADMIN))
 			return
 
 		if(!SSticker || !SSticker.mode)
 			return
 
-		SSticker.mode.delay_blob_win()
-		log_admin("[key_name(usr)] has stopped delayed blob win")
-		message_admins("[key_name_admin(usr)] has stopped delayed blob win")
+		var/datum/game_mode/mode = SSticker.mode
+		if(tgui_alert(usr,"Вы действительно хотите [mode.is_blob_infinity_points? "убрать" : "вернуть"] бесконечные очки у блобов?", "", list("Да", "Нет")) == "Нет")
+			return
+
+		mode.is_blob_infinity_points = !mode.is_blob_infinity_points
+
+		log_admin("[key_name(usr)] has [mode.is_blob_infinity_points? "remove" : "returned"] blob infinity points")
+		message_admins("[key_name_admin(usr)] has [mode.is_blob_infinity_points? "remove" : "returned"] blob infinity points")
+
+	else if(href_list["toggle_auto_nuke_codes"])
+		if(!check_rights(R_ADMIN))
+			return
+
+		if(!SSticker || !SSticker.mode)
+			return
+
+		var/datum/game_mode/mode = SSticker.mode
+		if(tgui_alert(usr,"Вы действительно хотите [mode.off_auto_nuke_codes? "вернуть" : "убрать"] автоматические коды от ядерной боеголовки?", "", list("Да", "Нет")) == "Нет")
+			return
+
+		mode.off_auto_nuke_codes = !mode.off_auto_nuke_codes
+
+		log_admin("[key_name(usr)] has [mode.off_auto_nuke_codes? "remove" : "returned"] automatic nuke codes")
+		message_admins("[key_name_admin(usr)] has [mode.off_auto_nuke_codes? "remove" : "returned"] automatic nuke codes")
+
+	else if(href_list["toggle_auto_gamma"])
+		if(!check_rights(R_ADMIN) || !check_rights(R_EVENT))
+			return
+
+		if(!SSticker || !SSticker.mode)
+			return
+
+		var/datum/game_mode/mode = SSticker.mode
+		if(tgui_alert(usr,"Вы действительно хотите [mode.off_auto_gamma? "вернуть" : "убрать"] автоматический ГАММА код?", "", list("Да", "Нет")) == "Нет")
+			return
+
+		mode.off_auto_gamma = !mode.off_auto_gamma
+
+		log_admin("[key_name(usr)] has [mode.off_auto_gamma? "remove" : "returned"] automatic GAMMA code")
+		message_admins("[key_name_admin(usr)] has [mode.off_auto_gamma? "remove" : "returned"] automatic GAMMA code")
 
 	else if(href_list["team_command"])
 		if(!check_rights(R_ADMIN))
@@ -3060,7 +3119,7 @@
 						GLOB.gravity_is_on = FALSE
 						log_and_message_admins("toggled global gravity OFF.")
 
-				for(var/area/area as anything in GLOB.all_areas)
+				for(var/area/area as anything in GLOB.areas)
 					area.gravitychange()
 
 			if("power")
@@ -3469,7 +3528,7 @@
 				if(!you_realy_want_do_this())
 					return
 				SSblackbox.record_feedback("tally", "admin_secrets_fun_used", 1, "Send Gamma Armory")
-				if(!SSshuttle.toggleShuttle("gamma_shuttle","gamma_home","gamma_away"))
+				if(!SSshuttle.toggleShuttle("gamma_shuttle","gamma_home","gamma_away", TRUE))
 					message_admins("[key_name_admin(usr)] moved the gamma armory")
 					log_admin("[key_name(usr)] moved the gamma armory")
 

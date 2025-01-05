@@ -26,6 +26,11 @@ Remember to update _globalvars/traits.dm if you're adding/removing/renaming trai
 #define TRAIT_CHASM_STOPPER "chasm_stopper"
 /// `do_teleport` will not allow this atom to teleport
 #define TRAIT_NO_TELEPORT "no-teleport"
+
+/// This atom is a secluded location, which is counted as out of bounds.
+/// Anything that enters this atom's contents should react if it wants to stay in bounds.
+#define TRAIT_SECLUDED_LOCATION "secluded_loc"
+
 #define TRAIT_SILENT_FOOTSTEPS "silent_footsteps"
 
 //turf traits
@@ -41,6 +46,7 @@ Remember to update _globalvars/traits.dm if you're adding/removing/renaming trai
 #define TRAIT_LAVA_STOPPED "lava_stopped"
 
 //mob traits
+#define TRAIT_GODMODE "godmode"
 #define TRAIT_PACIFISM "pacifism"
 #define TRAIT_WATERBREATH "waterbreathing"
 #define TRAIT_BLOODCRAWL "bloodcrawl"
@@ -54,10 +60,22 @@ Remember to update _globalvars/traits.dm if you're adding/removing/renaming trai
 #define TRAIT_FAKEDEATH "fakedeath"	//Makes the owner appear as dead to most forms of medical examination
 #define TRAIT_XENO_HOST "xeno_host"	//Tracks whether we're gonna be a baby alien's mummy.
 #define TRAIT_LEGION_TUMOUR "legion_tumour" //used in huds for special icon
+#define TRAIT_NO_SPELLS "no_spells"	// Used to prevent cast or use any spells
 /// Are we immune to shocks?
 #define TRAIT_SHOCKIMMUNE "shock_immunity"
 /// Are we immune to specifically tesla / SM shocks?
 #define TRAIT_TESLA_SHOCKIMMUNE "tesla_shock_immunity"
+/// Are we immune to wet effect
+#define TRAIT_WET_IMMUNITY "wet_immunity"
+
+/// We place people into a fireman carry quicker than standard
+#define TRAIT_QUICK_CARRY "quick-carry"
+/// We place people into a fireman carry especially quickly compared to quick_carry
+#define TRAIT_QUICKER_CARRY "quicker-carry"
+/// Prevents mob from riding mobs when buckled onto something
+#define TRAIT_CANT_RIDE "cant_ride"
+#define TRAIT_CHUNKYFINGERS "chunkyfingers"	//means that you can't use weapons with normal trigger guards.
+
 /// Means that you can't use weapons with normal trigger guards.
 #define TRAIT_NO_GUNS "no_guns"
 #define TRAIT_FORCE_DOORS "force_doors"
@@ -66,11 +84,18 @@ Remember to update _globalvars/traits.dm if you're adding/removing/renaming trai
 #define TRAIT_IGNOREDAMAGESLOWDOWN "ignoredamageslowdown"
 #define TRAIT_STRONG_GRABBER "strong_grabber"
 #define TRAIT_PUSHIMMUNE "push_immunity"
+#define TRAIT_AI_PAUSED "TRAIT_AI_PAUSED"
+#define TRAIT_FLATTENED	"flattened"
+
 /// Not a genetic obesity but just a mob who overate
 #define	TRAIT_FAT "trait_fat"
 #define TRAIT_HUSK "husk"
 #define TRAIT_SKELETON "skeleton"
 #define TRAIT_NO_CLONE "no_clone"
+/// Isn't attacked harmfully by blob structures
+#define TRAIT_BLOB_ALLY "blob_ally"
+/// Objects with this trait are deleted if they fall into chasms, rather than entering abstract storage
+#define TRAIT_CHASM_DESTROYED "chasm_destroyed"
 
 /// "Magic" trait that blocks the mob from moving or interacting with anything. Used for transient stuff like mob transformations or incorporality in special cases.
 /// Will block movement, `Life()` (!!!), and other stuff based on the mob.
@@ -164,6 +189,8 @@ Remember to update _globalvars/traits.dm if you're adding/removing/renaming trai
 /// This trait makes it so that an item literally cannot be removed at all, or at least that's how it should be. Only deleted.
 #define TRAIT_NODROP "nodrop"
 
+#define TRAIT_SHRAPNEL "shrapnel"
+
 
 ///Movement type traits for movables. See elements/movetype_handler.dm
 #define TRAIT_MOVE_GROUND "move_ground"
@@ -252,4 +279,7 @@ Remember to update _globalvars/traits.dm if you're adding/removing/renaming trai
 #define TRAIT_NO_CYBERIMPLANTS "no_cyberimplants"
 /// Prohibits the installation of the limbs, which do not belong to our species
 #define TRAIT_SPECIES_LIMBS "only_species_limbs"
+/// Phohibits using the "Book Of Babel"
+#define TRAIT_NO_BABEL "cannot_use_babel"
 
+#define TRAIT_BLOB_ZOMBIFIED "blob_zombified"

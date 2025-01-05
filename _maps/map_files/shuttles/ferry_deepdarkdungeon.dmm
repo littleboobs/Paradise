@@ -50,7 +50,8 @@
 	name = "ferry shuttle";
 	roundstart_move = "ferry_away";
 	timid = 1;
-	width = 5
+	width = 5;
+	preferred_direction = 4
 	},
 /obj/structure/fans/tiny,
 /obj/machinery/door/airlock/hatch{
@@ -179,7 +180,7 @@
 /area/shuttle/transport)
 "L" = (
 /obj/machinery/disco{
-	anchored = 1;
+	anchored = 1
 	},
 /turf/simulated/floor/shuttle/syndicate,
 /area/shuttle/transport)

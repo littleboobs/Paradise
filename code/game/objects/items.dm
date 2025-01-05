@@ -108,13 +108,14 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 	var/list/allowed = null //suit storage stuff.
 	var/obj/item/uplink/hidden/hidden_uplink = null // All items can have an uplink hidden inside, just remember to add the triggers.
 
-	var/needs_permit = 0			//Used by security bots to determine if this item is safe for public use.
+	var/needs_permit = FALSE //Used by security bots to determine if this item is safe for public use.
 
 	var/strip_delay = DEFAULT_ITEM_STRIP_DELAY
 	var/put_on_delay = DEFAULT_ITEM_PUTON_DELAY
 	var/breakouttime = 0
 
 	var/block_chance = 0
+	var/block_type = ALL
 	var/hit_reaction_chance = 0 //If you want to have something unrelated to blocking/armour piercing etc. Maybe not needed, but trying to think ahead/allow more freedom
 
 	// Needs to be in /obj/item because corgis can wear a lot of
@@ -195,42 +196,41 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 	var/enchant_type = NO_SPELL // What's the type on enchantment on it? 0
 	var/list/enchants = null // List(datum)
 
-	//eat_items.dm
-	var/material_type = MATERIAL_CLASS_NONE
-	var/max_bites = 1 			//The maximum amount of bites before item is depleted
-	var/current_bites = 0	//How many bites did
-	var/integrity_bite = 10		// Integrity used
-	var/nutritional_value = 20 	// How much nutrition add
-	var/is_only_grab_intent = FALSE	//Grab if help_intent was used
-
 	///In deciseconds, how long an item takes to equip/unequip; counts only for normal clothing slots, not pockets, hands etc.
 	var/equip_delay_self = 0 SECONDS
 
 	///Datum used in item pixel shift TGUI
 	var/datum/ui_module/item_pixel_shift/item_pixel_shift
 
-/obj/item/New()
-	..()
+
+/obj/item/Initialize(mapload)
+	. = ..()
+
+	if(isstorage(loc)) //marks all items in storage as being such
+		item_flags |= IN_STORAGE
+
+	if(!hitsound)
+		if(damtype == "fire")
+			hitsound = 'sound/items/welder.ogg'
+
+		if(damtype == "brute")
+			hitsound = "swing_hit"
+
 	for(var/path in actions_types)
 		if(action_icon && action_icon_state)
 			new path(src, action_icon[path], action_icon_state[path])
+
 		else
 			new path(src)
 
 	if(!move_resist)
 		determine_move_resist()
 
+	add_eatable_component()
 
-/obj/item/Initialize(mapload)
-	. = ..()
-	if(isstorage(loc)) //marks all items in storage as being such
-		item_flags |= IN_STORAGE
-	if(!hitsound)
-		if(damtype == "fire")
-			hitsound = 'sound/items/welder.ogg'
-		if(damtype == "brute")
-			hitsound = "swing_hit"
 
+/obj/item/proc/add_eatable_component()
+	AddComponent(/datum/component/eatable)
 
 /obj/item/proc/determine_move_resist()
 	switch(w_class)
@@ -273,10 +273,16 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 	else
 		return TRUE
 
+		
 /obj/item/blob_act(obj/structure/blob/B)
-	if(B && B.loc == loc && !QDELETED(src))
-		qdel(src)
+	if(B && B.loc == loc && !QDELETED(src) && !(obj_flags & IGNORE_BLOB_ACT))
+		obj_destruction(MELEE)
 
+/obj/item/blob_vore_act(obj/structure/blob/special/core/voring_core)
+	. = ..()
+	if(QDELETED(src))
+		return FALSE
+	forceMove(voring_core)
 
 /obj/item/examine(mob/user)
 	var/size
@@ -294,9 +300,7 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 		if(WEIGHT_CLASS_GIGANTIC)
 			size = "gigantic"
 
-	var/material_string = item_string_material(user)
-
-	. = ..(user, "", "It is a [size] item. [material_string]")
+	. = ..(user, "", "It is a [size] item.")
 
 	if(user.research_scanner) //Mob has a research scanner active.
 		var/msg = "*--------* <BR>"
@@ -346,8 +350,8 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 		..()
 
 
-/obj/item/proc/afterattack(atom/target, mob/user, proximity, params)
-	SEND_SIGNAL(src, COMSIG_ITEM_AFTERATTACK, target, user, proximity, params)
+/obj/item/proc/afterattack(atom/target, mob/user, proximity, params, status)
+	SEND_SIGNAL(src, COMSIG_ITEM_AFTERATTACK, target, user, proximity, params, status)
 
 
 /obj/item/attack_hand(mob/user, pickupfireoverride = FALSE)
@@ -511,7 +515,9 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 	return ..()
 
 
-/obj/item/proc/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = MELEE_ATTACK)
+/obj/item/proc/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
+	if (!block_type || !(block_type & attack_type))
+		final_block_chance = 0
 	var/signal_result = (SEND_SIGNAL(src, COMSIG_ITEM_HIT_REACT, owner, hitby, damage, attack_type) & COMPONENT_BLOCK_SUCCESSFUL) + prob(final_block_chance)
 	if(signal_result != 0)
 		owner.visible_message(span_danger("[owner] blocks [attack_text] with [src]!"))
@@ -1008,18 +1014,19 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 
 /obj/item/MouseEntered(location, control, params)
 	if(item_flags & (IN_INVENTORY|IN_STORAGE))
-		var/timedelay = 8
-		var/mob/user = usr
-		tip_timer = addtimer(CALLBACK(src, PROC_REF(openTip), location, control, params, user), timedelay, TIMER_STOPPABLE)
+		var/mob/living/user = usr
+		if(user.client.prefs.toggles2 & PREFTOGGLE_2_DESC_TIPS)
+			var/timedelay = 8
+			tip_timer = addtimer(CALLBACK(src, PROC_REF(openTip), location, control, params, user), timedelay, TIMER_STOPPABLE)
+
 		if(QDELETED(src))
 			return
-		var/mob/living/L = user
 		if(!(user.client.prefs.toggles2 & PREFTOGGLE_2_SEE_ITEM_OUTLINES))
 			return
-		if(istype(L) && L.incapacitated())
-			apply_outline(L, COLOR_RED_GRAY) //if they're dead or handcuffed, let's show the outline as red to indicate that they can't interact with that right now
+		if(istype(user) && user.incapacitated())
+			apply_outline(user, COLOR_RED_GRAY) //if they're dead or handcuffed, let's show the outline as red to indicate that they can't interact with that right now
 		else
-			apply_outline(L) //if the player's alive and well we send the command with no color set, so it uses the theme's color
+			apply_outline(user) //if the player's alive and well we send the command with no color set, so it uses the theme's color
 
 
 /obj/item/MouseExited()
@@ -1323,3 +1330,13 @@ GLOBAL_DATUM_INIT(fire_overlay, /mutable_appearance, mutable_appearance('icons/g
 	SHOULD_CALL_PARENT(TRUE)
 	SHOULD_BE_PURE(TRUE)
 	return !HAS_TRAIT(src, TRAIT_NODROP) && !(item_flags & ABSTRACT)
+
+///Called by the carbon throw_item() proc. Returns null if the item negates the throw, or a reference to the thing to suffer the throw else.
+/obj/item/proc/on_thrown(mob/living/carbon/user, atom/target)
+	if((item_flags & ABSTRACT) || HAS_TRAIT(src, TRAIT_NODROP))
+		return
+	user.drop_item_ground(src, silent = TRUE)
+	if(throwforce && HAS_TRAIT(user, TRAIT_PACIFISM))
+		to_chat(src, span_notice("Вы осторожно опускаете [declent_ru(ACCUSATIVE)] на землю."))
+		return
+	return src

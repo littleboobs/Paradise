@@ -317,6 +317,9 @@
 	desc = "Toggles if the club's blasts cause friendly fire."
 	button_icon_state = "vortex_ff_on"
 
+/datum/action/item_action/toggle_backpack_light
+	name = "Toggle Backpack Light"
+
 /datum/action/item_action/toggle_unfriendly_fire/Trigger(left_click = TRUE)
 	if(..())
 		UpdateButtonIcon()
@@ -565,6 +568,10 @@
 
 	var/obj/item/clothing/shoes/magboots/gravity/G = target
 	G.dash(usr)
+
+/datum/action/item_action/toggle_rapier_nodrop
+	name = "Toggle Anti-Drop"
+	desc = "Activates/deactivates CentComm rapier Anti-Drop."
 
 ///prset for organ actions
 /datum/action/item_action/organ_action

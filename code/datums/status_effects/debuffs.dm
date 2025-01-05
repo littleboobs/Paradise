@@ -57,6 +57,40 @@
 /datum/status_effect/pacifism/on_remove()
 	REMOVE_TRAIT(owner, TRAIT_PACIFISM, id)
 
+/datum/status_effect/fang_exhaust
+	id = "fang_exhaust"
+	alert_type = null
+	duration = 2 SECONDS
+	var/modifier
+
+/datum/status_effect/fang_exhaust/on_creation(mob/living/simple_animal/new_owner, modifier = 1.1)
+	if(!istype(new_owner))
+		return FALSE
+
+	src.modifier = modifier
+	return ..()
+
+/datum/status_effect/fang_exhaust/on_apply()
+	var/mob/living/simple_animal/new_owner = owner
+
+	for(var/thing in new_owner.damage_coeff)
+		if(!new_owner.damage_coeff[thing])
+			continue
+
+		new_owner.damage_coeff[thing] *= modifier
+
+	return ..()
+
+/datum/status_effect/fang_exhaust/on_remove()
+	var/mob/living/simple_animal/new_owner = owner
+	
+	for(var/thing in new_owner.damage_coeff)
+		if(!new_owner.damage_coeff[thing])
+			continue
+
+		new_owner.damage_coeff[thing] /= modifier
+		
+	return ..()
 
 /datum/status_effect/shadow_boxing
 	id = "shadow barrage"
@@ -1013,7 +1047,7 @@
 		if(prob(pukeprob))
 			carbon.AdjustConfused(9 SECONDS)
 			carbon.AdjustStuttering(3 SECONDS)
-			carbon.vomit(15, FALSE, 8 SECONDS, 0, FALSE)
+			carbon.vomit(15, message = FALSE)
 		carbon.Dizzy(15 SECONDS)
 	if(strength >= DISGUST_LEVEL_DISGUSTED)
 		if(prob(25))
@@ -1227,3 +1261,33 @@
 	if(new_filter)
 		animate(get_filter("ray"), offset = 10, time = 10 SECONDS, loop = -1)
 		animate(offset = 0, time = 10 SECONDS)
+
+/datum/status_effect/tox_vomit
+	id = "vomitting_from_toxins"
+	alert_type = null
+	processing_speed = STATUS_EFFECT_NORMAL_PROCESS
+	tick_interval = 2 SECONDS
+	var/puke_counter = 0
+
+/datum/status_effect/tox_vomit/on_apply()
+	if(!iscarbon(owner))
+		return FALSE
+
+	return TRUE
+
+/datum/status_effect/tox_vomit/tick(seconds_between_ticks)
+	if(owner.stat == DEAD || !TOX_VOMIT_THRESHOLD_REACHED(owner, TOX_VOMIT_REQUIRED_TOXLOSS) || HAS_TRAIT(owner, TRAIT_GODMODE))
+		qdel(src)
+		return
+
+	puke_counter++
+	if(puke_counter < 25)
+		return
+
+	var/mob/living/carbon/carbon = owner
+	puke_counter = initial(puke_counter)
+
+	if(!carbon.vomit())
+		return
+
+	carbon.adjustToxLoss(-3)

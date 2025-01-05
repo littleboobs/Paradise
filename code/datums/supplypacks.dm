@@ -237,6 +237,35 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 	containername = "pump crate"
 	access = ACCESS_ATMOSPHERICS
 
+/datum/supply_packs/emergency/biosuitcrate
+	name = "Anti-epidemic equipment crate"
+	contains = list(/obj/item/clothing/suit/bio_suit,
+					/obj/item/clothing/suit/bio_suit,
+					/obj/item/clothing/suit/bio_suit,
+					/obj/item/clothing/suit/bio_suit,
+					/obj/item/clothing/suit/bio_suit,
+					/obj/item/clothing/suit/bio_suit,
+					/obj/item/clothing/head/bio_hood,
+					/obj/item/clothing/head/bio_hood,
+					/obj/item/clothing/head/bio_hood,
+					/obj/item/clothing/head/bio_hood,
+					/obj/item/clothing/head/bio_hood,
+					/obj/item/clothing/head/bio_hood,
+					/obj/item/clothing/mask/breath,
+					/obj/item/clothing/mask/breath,
+					/obj/item/clothing/mask/breath,
+					/obj/item/clothing/mask/breath,
+					/obj/item/clothing/mask/breath,
+					/obj/item/clothing/mask/breath,
+					/obj/item/tank/internals/emergency_oxygen/engi,
+					/obj/item/tank/internals/emergency_oxygen/engi,
+					/obj/item/tank/internals/emergency_oxygen/engi,
+					/obj/item/tank/internals/emergency_oxygen/engi,
+					/obj/item/tank/internals/emergency_oxygen/engi,
+					/obj/item/tank/internals/emergency_oxygen/engi)
+	cost = 120
+	containername = "anti-epidemic equipment crate"
+
 /datum/supply_packs/emergency/specialops
 	name = "Special Ops Supplies"
 	contains = list(/obj/item/storage/box/emps,
@@ -468,26 +497,20 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 
 /datum/supply_packs/security/armory/riothelmets
 	name = "Riot Bundle Crate"
-	contains = list(/obj/item/clothing/head/helmet/riot,
-					/obj/item/clothing/head/helmet/riot,
-					/obj/item/clothing/head/helmet/riot,
+	contains = list(/obj/item/storage/backpack/duffel/security/riot_armory,
+					/obj/item/storage/backpack/duffel/security/riot_armory,
+					/obj/item/storage/backpack/duffel/security/riot_armory,
 					/obj/item/shield/riot,
 					/obj/item/shield/riot,
-					/obj/item/shield/riot,
-					/obj/item/clothing/suit/armor/riot,
-					/obj/item/clothing/suit/armor/riot,
-					/obj/item/clothing/suit/armor/riot)
+					/obj/item/shield/riot)
 	cost = 80
 	containername = "riot bundle crate"
 
 /datum/supply_packs/security/armory/bulletarmor
 	name = "Bulletproof Armor Crate"
-	contains = list(/obj/item/clothing/suit/armor/bulletproof,
-					/obj/item/clothing/suit/armor/bulletproof,
-					/obj/item/clothing/suit/armor/bulletproof,
-					/obj/item/clothing/head/helmet/alt,
-					/obj/item/clothing/head/helmet/alt,
-					/obj/item/clothing/head/helmet/alt)
+	contains = list(/obj/item/storage/backpack/duffel/security/bulletproof_armory,
+					/obj/item/storage/backpack/duffel/security/bulletproof_armory,
+					/obj/item/storage/backpack/duffel/security/bulletproof_armory)
 	cost = 40
 	containername = "tactical armor crate"
 
@@ -547,6 +570,13 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 					/obj/item/sibyl_system_mod)
 	cost = 25														//По 6 за один блокиратор
 	containername = "sibyl attachments crate"
+
+/datum/supply_packs/security/armory/fastpouch
+	name = "Fast Pouch Crate"
+	contains = list(/obj/item/storage/pouch/fast,
+					/obj/item/storage/pouch/fast)
+	cost = 100
+	containername = "fast pouch crate"
 
 /////// Weapons: Specialist
 
@@ -2931,6 +2961,13 @@ GLOBAL_LIST_INIT(all_supply_groups, list(SUPPLY_EMERGENCY,SUPPLY_SECURITY,SUPPLY
 	contains = list(/obj/item/vending_refill/chinese)
 	cost = 15
 	containername = "chinese supply crate"
+
+/datum/supply_packs/vending/customat
+	name = "Customat Resupply Canister Crate"
+	contains = list(/obj/item/vending_refill/custom,
+					/obj/item/vending_refill/custom)
+	cost = 30
+	containername = "customat canister supply crate"
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////// CONTRABAND SUPPLY ///////////////////////////////////

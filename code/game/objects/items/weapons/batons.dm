@@ -103,7 +103,7 @@
 
 	if(ishuman(target))
 		var/mob/living/carbon/human/human_target = target
-		if(human_target.check_shields(src, 0, "[user]'s [name]", MELEE_ATTACK))
+		if(human_target.check_shields(src, 0, "[user]'s [name]", ITEM_ATTACK))
 			return BATON_ATTACK_DONE
 		if(check_martial_counter(target, user))
 			return BATON_ATTACK_DONE
@@ -275,7 +275,7 @@
 	/// The sound effecte played when our baton is extended.
 	var/extend_sound = 'sound/weapons/batonextend.ogg'
 	/// The inhand iconstate used when our baton is extended.
-	var/extend_item_state = "nullrod"
+	var/extend_item_state = "telebaton"
 	/// The force on extension.
 	var/extend_force = 10
 

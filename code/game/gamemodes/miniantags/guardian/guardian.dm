@@ -18,8 +18,6 @@
 	stop_automated_movement = 1
 	universal_speak = TRUE
 	attack_sound = 'sound/weapons/punch1.ogg'
-	minbodytemp = 0
-	maxbodytemp = INFINITY
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
 	attacktext = "бьёт"
 	maxHealth = INFINITY //The spirit itself is invincible
@@ -31,6 +29,7 @@
 	move_resist = MOVE_FORCE_STRONG
 	AIStatus = AI_OFF
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/ectoplasm = 1)
+	hud_type = /datum/hud/guardian
 	var/summoned = FALSE
 	var/cooldown = 0
 	var/damage_transfer = 1 //how much damage from each attack we transfer to the owner
@@ -53,6 +52,13 @@
 		return
 	summoner = host
 	host.grant_guardian_actions(src)
+
+/mob/living/simple_animal/hostile/guardian/ComponentInitialize()
+	AddComponent( \
+		/datum/component/animal_temperature, \
+		maxbodytemp = INFINITY, \
+		minbodytemp = 0, \
+	)
 
 /mob/living/simple_animal/hostile/guardian/med_hud_set_health()
 	if(summoner)

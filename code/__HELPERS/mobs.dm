@@ -46,45 +46,37 @@
 
 	return pick(valid_picks)
 
-/proc/random_hair_style(var/gender, species = SPECIES_HUMAN, var/datum/robolimb/robohead, var/mob/living/carbon/human/H)
+/proc/random_hair_style(
+	gender, 
+	datum/species/species, 
+	datum/robolimb/robohead = GLOB.all_robolimbs["Morpheus Cyberkinetics"], 
+	mob/living/carbon/human/human
+	)
 	var/h_style = "Bald"
 	var/list/valid_hairstyles = list()
 
-	if(species == SPECIES_WRYN) // wryns antennaes now bound to hivenode, no need to change them
-		if(H)
-			var/obj/item/organ/external/head/head_organ = H.get_organ(BODY_ZONE_HEAD)
-			if(head_organ?.h_style)
-				return head_organ.h_style
-		else
-			return "Antennae"
-
 	for(var/hairstyle in GLOB.hair_styles_public_list)
-		var/datum/sprite_accessory/S = GLOB.hair_styles_public_list[hairstyle]
+		var/datum/sprite_accessory/style = GLOB.hair_styles_public_list[hairstyle]
 
-		if(hairstyle == "Bald") //Just in case.
-			valid_hairstyles += hairstyle
+		if(!LAZYIN(style.species_allowed, species.name))
 			continue
-		if((gender == MALE && S.gender == FEMALE) || (gender == FEMALE && S.gender == MALE))
-			continue
-		if(species == SPECIES_MACNINEPERSON) //If the user is a species who can have a robotic head...
-			if(!robohead)
-				robohead = GLOB.all_robolimbs["Morpheus Cyberkinetics"]
-			if((species in S.species_allowed) && robohead.is_monitor && ((S.models_allowed && (robohead.company in S.models_allowed)) || !S.models_allowed)) //If this is a hair style native to the user's species, check to see if they have a head with an ipc-style screen and that the head's company is in the screen style's allowed models list.
-				valid_hairstyles += hairstyle //Give them their hairstyles if they do.
-			else
-				if(!robohead.is_monitor && (SPECIES_HUMAN in S.species_allowed)) /*If the hairstyle is not native to the user's species and they're using a head with an ipc-style screen, don't let them access it.
-																			But if the user has a robotic humanoid head and the hairstyle can fit humans, let them use it as a wig. */
-					valid_hairstyles += hairstyle
-		else //If the user is not a species who can have robotic heads, use the default handling.
-			if(species in S.species_allowed) //If the user's head is of a species the hairstyle allows, add it to the list.
-				valid_hairstyles += hairstyle
 
-	if(valid_hairstyles.len)
-		h_style = pick(valid_hairstyles)
+		if(gender == style.unsuitable_gender)
+			continue
+
+		if(!species.is_allowed_hair_style(human, robohead, style))
+			continue
+
+		LAZYADD(valid_hairstyles, hairstyle)
+
+	if(human)
+		SEND_SIGNAL(human, COMSIG_RANDOM_HAIR_STYLE, valid_hairstyles, robohead)
+
+	h_style = safepick(valid_hairstyles)
 
 	return h_style
 
-/proc/random_facial_hair_style(var/gender, species = SPECIES_HUMAN, var/datum/robolimb/robohead)
+/proc/random_facial_hair_style(gender, species = SPECIES_HUMAN, datum/robolimb/robohead)
 	var/f_style = "Shaved"
 	var/list/valid_facial_hairstyles = list()
 	for(var/facialhairstyle in GLOB.facial_hair_styles_list)
@@ -93,7 +85,7 @@
 		if(facialhairstyle == "Shaved") //Just in case.
 			valid_facial_hairstyles += facialhairstyle
 			continue
-		if((gender == MALE && S.gender == FEMALE) || (gender == FEMALE && S.gender == MALE))
+		if(gender == S.unsuitable_gender)
 			continue
 		if(species == SPECIES_MACNINEPERSON) //If the user is a species who can have a robotic head...
 			if(!robohead)
@@ -128,7 +120,7 @@
 
 	return ha_style
 
-/proc/random_marking_style(var/location = "body", species = SPECIES_HUMAN, var/datum/robolimb/robohead, var/body_accessory, var/alt_head)
+/proc/random_marking_style(location = "body", species = SPECIES_HUMAN, datum/robolimb/robohead, body_accessory, alt_head, gender = NEUTER)
 	var/m_style = "None"
 	var/list/valid_markings = list()
 	for(var/marking in GLOB.marking_styles_list)
@@ -136,9 +128,11 @@
 		if(S.name == "None")
 			valid_markings += marking
 			continue
-		if(S.marking_location != location) //If the marking isn't for the location we desire, skip.
+		if(S.marking_location != location)	// If the marking isn't for the location we desire, skip.
 			continue
-		if(!(species in S.species_allowed)) //If the user's head is not of a species the marking style allows, skip it. Otherwise, add it to the list.
+		if(gender == S.unsuitable_gender)	// If the marking isn't allowed for the user's gender, skip.
+			continue
+		if(!(species in S.species_allowed))	// If the user's head is not of a species the marking style allows, skip it. Otherwise, add it to the list.
 			continue
 		if(location == "tail")
 			if(!body_accessory)
@@ -666,4 +660,3 @@
 		out_ckey = "(Disconnected)"
 
 	return out_ckey
-

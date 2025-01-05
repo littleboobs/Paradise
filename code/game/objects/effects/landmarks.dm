@@ -471,10 +471,6 @@
 	name = JOB_TITLE_LIBRARIAN
 	icon_state = "Librarian"
 
-/obj/effect/landmark/start/barber
-	name = JOB_TITLE_BARBER
-	icon_state = "Barber"
-
 /obj/effect/landmark/start/chaplain
 	name = JOB_TITLE_CHAPLAIN
 	icon_state = "Chap"
@@ -533,7 +529,7 @@
 	new /obj/item/clothing/under/blackskirt(src.loc)
 	var/CHOICE = pick( /obj/item/clothing/head/beret , /obj/item/clothing/head/rabbitears )
 	new CHOICE(src.loc)
-	new /obj/item/clothing/glasses/sunglasses/blindfold(src.loc)
+	new /obj/item/clothing/glasses/sunglasses/blindfold/black(src.loc)
 	qdel(src)
 
 /obj/effect/landmark/costume/butler/New()

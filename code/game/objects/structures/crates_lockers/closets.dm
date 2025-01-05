@@ -32,6 +32,7 @@ GLOBAL_LIST_EMPTY(closets)
 	var/locked = FALSE
 	var/large = TRUE
 	var/can_be_emaged = FALSE
+	var/can_weld_shut = TRUE
 	var/wall_mounted = FALSE //never solid (You can always pass over it)
 	var/lastbang
 	var/open_sound = 'sound/machines/closet_open.ogg'
@@ -78,10 +79,36 @@ GLOBAL_LIST_EMPTY(closets)
 			break
 
 // Fix for #383 - C4 deleting fridges with corpses
-/obj/structure/closet/Destroy()
+/obj/structure/closet/Destroy(force)
 	GLOB.closets -= src
+	if(force)
+		for(var/atom/movable/thing in contents)
+			qdel(thing, force)
+
+		return ..()
+
 	dump_contents()
 	return ..()
+
+/obj/structure/closet/vv_edit_var(vname, vval)
+	if(vname == NAMEOF(src, opened))
+		if(vval == opened)
+			return FALSE
+		if(vval && !opened && open())
+			datum_flags |= DF_VAR_EDITED
+			return TRUE
+		else if(!vval && opened && close())
+			datum_flags |= DF_VAR_EDITED
+			return TRUE
+		return FALSE
+	. = ..()
+	if(vname == NAMEOF(src, welded) && welded && !can_weld_shut)
+		can_weld_shut = TRUE
+	else if(vname == NAMEOF(src, can_weld_shut) && !can_weld_shut && welded)
+		welded = FALSE
+		update_appearance()
+	if(vname in list(NAMEOF(src, locked), NAMEOF(src, welded)))
+		update_appearance()
 
 
 /obj/structure/closet/CanAllowThrough(atom/movable/mover, border_dir)
@@ -101,6 +128,11 @@ GLOBAL_LIST_EMPTY(closets)
 			return FALSE
 
 	return TRUE
+
+/obj/structure/closet/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
+	. = ..()
+	if(iswallturf(hit_atom) && prob(20))
+		open()
 
 /obj/structure/closet/proc/dump_contents()
 	var/atom/L = drop_location()
@@ -126,6 +158,9 @@ GLOBAL_LIST_EMPTY(closets)
 	set_density(FALSE)
 	after_open()
 	return TRUE
+
+/obj/structure/closet/setOpened()
+	open()
 
 ///Proc to override for effects after opening a door
 /obj/structure/closet/proc/after_open(mob/living/user, force = FALSE)
@@ -176,6 +211,9 @@ GLOBAL_LIST_EMPTY(closets)
 		playsound(loc, 'sound/machines/click.ogg', close_sound_volume, TRUE, -3)
 	set_density(ignore_density_closed ? FALSE : TRUE)
 	return TRUE
+
+/obj/structure/closet/setClosed()
+	close()
 
 /obj/structure/closet/proc/toggle(mob/user)
 	. = TRUE
@@ -248,6 +286,8 @@ GLOBAL_LIST_EMPTY(closets)
 	. = TRUE
 	if(!opened && user.loc == src)
 		to_chat(user, "<span class='warning'>You can't weld [src] from inside!</span>")
+		return
+	if(!can_weld_shut)
 		return
 	if(!I.tool_use_check(user, 0))
 		return
@@ -442,10 +482,13 @@ GLOBAL_LIST_EMPTY(closets)
 		user.overlay_fullscreen("remote_view", /atom/movable/screen/fullscreen/impaired, 1)
 
 /obj/structure/closet/ex_act(severity)
+	contents_explosion()
+	..()
+
+/obj/structure/closet/proc/contents_explosion(severity)
 	for(var/atom/A in contents)
 		A.ex_act(severity)
 		CHECK_TICK
-	..()
 
 /obj/structure/closet/singularity_act()
 	dump_contents()
@@ -466,6 +509,33 @@ GLOBAL_LIST_EMPTY(closets)
 		gorilla.oogaooga()
 	return ..()
 
+/obj/structure/closet/shove_impact(mob/living/target, mob/living/attacker)
+	if(opened && can_close())
+		target.forceMove(src)
+		visible_message(
+			span_danger("[attacker] shoves [target] inside [src]!"),
+			span_userdanger("You shove [target] inside [src]!"),
+			span_warning("You hear a thud, and something clangs shut.")
+		)
+		close()
+		add_attack_logs(attacker, target, "shoved into [src]")
+		return TRUE
+
+	if(locked && allowed(target))
+		locked = !locked
+		visible_message("<span class='danger'>[attacker] shoves [target] against [src], knocking the lock [locked ? null : "un"]locked!</span>")
+		target.Knockdown(3 SECONDS)
+		playsound(loc, pick(togglelock_sound), 15, TRUE, -3)
+		update_icon()
+		return TRUE
+
+	if(!opened && can_open())
+		open()
+		visible_message("<span class='danger'>[attacker] shoves [target] against [src], knocking it open!</span>")
+		target.Knockdown(3 SECONDS)
+		return TRUE
+
+	return ..()
 
 /obj/structure/closet/bluespace
 	name = "bluespace closet"

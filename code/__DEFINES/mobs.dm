@@ -17,9 +17,6 @@
 
 #define TOXIN_TO_INTERNAL_DAMAGE_MULTIPLIER 2 // coefficient wich defines ratio of toxin into internal organs damage transfer
 
-#define AGE_MIN 17			//youngest a character can be
-#define AGE_MAX 85			//oldest a character can be
-
 
 #define LEFT 1
 #define RIGHT 2
@@ -64,6 +61,8 @@
 ////////REAGENT STUFF////////
 // How many units of reagent are consumed per tick, by default.
 #define  REAGENTS_METABOLISM 0.4
+#define REAGENTS_EFFECT_MULTIPLIER (REAGENTS_METABOLISM / 0.4) // By defining the effect multiplier this way, it'll exactly adjust all effects according to how they originally were with the 0.4 metabolism
+#define REM REAGENTS_EFFECT_MULTIPLIER //! Shorthand for the above define for ease of use in equations and the like
 
 // Factor of how fast mob nutrition decreases
 #define	HUNGER_FACTOR 0.1
@@ -210,6 +209,8 @@
 #define isskeleton(A) (is_species(A, /datum/species/skeleton))
 #define ishumanbasic(A) (is_species(A, /datum/species/human))
 #define isunathi(A) (is_species(A, /datum/species/unathi))
+#define isashwalker(A) (is_species(A, /datum/species/unathi/ashwalker))
+#define isashwalkershaman(A) (is_species(A, /datum/species/unathi/ashwalker/shaman))
 #define istajaran(A) (is_species(A, /datum/species/tajaran))
 #define isvulpkanin(A) (is_species(A, /datum/species/vulpkanin))
 #define isskrell(A) (is_species(A, /datum/species/skrell))
@@ -297,6 +298,7 @@
 #define isslaughterdemon(A) (istype((A), /mob/living/simple_animal/demon/slaughter))
 #define isdemon(A) 			(istype((A), /mob/living/simple_animal/demon))
 #define ismorph(A)		(istype((A), /mob/living/simple_animal/hostile/morph))
+#define isborer(A)		(istype((A), /mob/living/simple_animal/borer))
 
 #define issilicon(A)	(istype((A), /mob/living/silicon))
 #define isAI(A)			(istype((A), /mob/living/silicon/ai))
@@ -317,6 +319,9 @@
 
 #define isAIEye(A)		(istype((A), /mob/camera/aiEye))
 #define isovermind(A)	(istype((A), /mob/camera/blob))
+
+#define isminion(A)		(istype((A), /mob/living/simple_animal/hostile/blob_minion))
+#define isblobbernaut(M) istype((M), /mob/living/simple_animal/hostile/blob_minion/blobbernaut)
 
 #define isSpirit(A)		(istype((A), /mob/spirit))
 #define ismask(A)		(istype((A), /mob/spirit/mask))
@@ -408,6 +413,7 @@
 
 #define PULL_LYING_MOB_SLOWDOWN 1.3
 #define PUSH_STANDING_MOB_SLOWDOWN 1.3
+#define HUMAN_CARRY_SLOWDOWN 0.6
 
 #define ACTIVE_HAND_RIGHT 0
 #define ACTIVE_HAND_LEFT 1
@@ -440,3 +446,18 @@
 /// Makes the weaken into a knockdown
 #define SHOCK_KNOCKDOWN (1<<7)
 
+
+/// Vomit defines
+#define VOMIT_NUTRITION_LOSS	10
+#define VOMIT_STUN_TIME			(8 SECONDS)
+#define VOMIT_DISTANCE			1
+#define VOMIT_SAFE_NUTRITION	90
+/// Vomit modes
+#define VOMIT_BLOOD	(1<<0)
+
+/// When reached - we'll apply status effect which will force carbon to vomit
+#define TOX_VOMIT_THRESHOLD_REACHED(mob, toxloss)	(mob.getToxLoss() >= toxloss)
+#define TOX_VOMIT_REQUIRED_TOXLOSS	45
+
+/// For babylon fever disease.
+#define DISEASE_MOB_LANGUAGE_PROCESSED (1<<0)

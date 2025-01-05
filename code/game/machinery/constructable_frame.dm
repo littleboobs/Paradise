@@ -360,7 +360,8 @@ to destroy them and players will be able to make replacements.
 		"Departament Law ClothesMate" =			/obj/machinery/vending/clothing/departament/law,
 		"Service Departament ClothesMate Botanical" = /obj/machinery/vending/clothing/departament/service/botanical,
 		"Service Departament ClothesMate Chaplain" 	= /obj/machinery/vending/clothing/departament/service/chaplain,
-		"RoboFriends" =                         /obj/machinery/vending/pai,)
+		"RoboFriends" =                         /obj/machinery/vending/pai,
+		"Customat" =						 	/obj/machinery/customat,)
 
 	var/static/list/unique_vendors = list(
 		"ShadyCigs Ultra" =						/obj/machinery/vending/cigarette/beach,
@@ -1013,6 +1014,19 @@ to destroy them and players will be able to make replacements.
 	origin_tech = "programming=3;engineering=3;plasmatech=3;bluespace=5"
 	req_components = list(
 							/obj/item/stack/ore/bluespace_crystal = 5,
+							/obj/item/stack/cable_coil = 15)
+
+/obj/item/circuitboard/advanced_roboquest_pad
+	board_name = "Robotics Request Advanced Quantum Pad"
+	icon_state = "abductor_mod"
+	build_path = /obj/machinery/roboquest_pad/advanced
+	board_type = "machine"
+	origin_tech = "programming=4;engineering=5;plasmatech=5;bluespace=6"
+	req_components = list(
+							/obj/item/stack/ore/bluespace_crystal = 5,
+							/obj/item/stock_parts/capacitor/purple = 1,
+							/obj/item/stock_parts/manipulator/purple = 1,
+							/obj/item/stock_parts/scanning_module/purple = 1,
 							/obj/item/stack/cable_coil = 15)
 
 /obj/item/circuitboard/sleeper

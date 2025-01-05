@@ -15,7 +15,6 @@
 	ventcrawler_trait = TRAIT_VENTCRAWLER_ALWAYS
 	mobility_flags = MOBILITY_FLAGS_REST_CAPABLE_DEFAULT
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
-	minbodytemp = 0
 
 	maxHealth = 50
 	health = 50
@@ -54,6 +53,12 @@
 	var/datum/action/innate/diona/evolve/evolve_action = new()
 	var/datum/action/innate/diona/steal_blood/steal_blood_action = new()
 
+/mob/living/simple_animal/diona/ComponentInitialize()
+	AddComponent( \
+		/datum/component/animal_temperature, \
+		minbodytemp = 0, \
+	)
+
 /datum/action/innate/diona/merge
 	name = "Merge with gestalt"
 	icon_icon = 'icons/mob/human_races/r_diona.dmi'
@@ -91,9 +96,7 @@
 	evolve_action.Grant(src)
 	steal_blood_action.Grant(src)
 
-/mob/living/simple_animal/diona/UnarmedAttack(atom/A)
-	if(!can_unarmed_attack())
-		return
+/mob/living/simple_animal/diona/OnUnarmedAttack(atom/A)
 	if(isdiona(A) && (src in A.contents)) //can't attack your gestalt
 		visible_message("[src] wiggles around a bit.")
 	else

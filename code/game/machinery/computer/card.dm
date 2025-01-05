@@ -10,7 +10,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 
 /obj/machinery/computer/card
 	name = "identification computer"
-	desc = "Terminal for programming Nanotrasen employee ID cards to access parts of the station."
+	desc = "Терминал, используемый для изменения уровня доступа ID-карт сотрудников Nanotrasen."
 	icon_keyboard = "id_key"
 	icon_screen = "id"
 	req_access = list(ACCESS_CHANGE_IDS)
@@ -56,7 +56,6 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 		/datum/job/mechanic,
 		/datum/job/chaplain,
 		/datum/job/officer,
-		/datum/job/barber
 	)
 	//The scaling factor of max total positions in relation to the total amount of people on board the station in %
 	var/max_relative_positions = 30 //30%: Seems reasonable, limit of 6 @ 20 players
@@ -529,6 +528,8 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 				modify.access = access
 				modify.rank = t1
 				modify.assignment = assignment
+				SSjobs.account_job_transfer(modify.registered_name, t1)
+
 			regenerate_id_name()
 			return
 		if("demote")
@@ -559,6 +560,8 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 			modify.access = access
 			modify.assignment = "Demoted"
 			modify.icon_state = "id"
+
+			SSjobs.account_job_transfer(modify.registered_name, JOB_TITLE_CIVILIAN)
 			regenerate_id_name()
 			return
 		if("terminate")
@@ -583,6 +586,8 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 				job.current_positions--
 			modify.assignment = "Terminated"
 			modify.access = list()
+
+			SSjobs.account_job_transfer(modify.registered_name, modify.rank, FALSE)
 			regenerate_id_name()
 			return
 		if("make_job_available") // MAKE ANOTHER JOB POSITION AVAILABLE FOR LATE JOINERS
@@ -766,7 +771,7 @@ GLOBAL_VAR_INIT(time_last_changed_position, 0)
 /obj/machinery/computer/card/minor
 	name = "department management console"
 	target_dept = TARGET_DEPT_GENERIC
-	desc = "You can use this to change ID's for specific departments."
+	desc = "Вы можете использовать это, чтобы изменить ID-карту для определенного отдела."
 	icon_screen = "idminor"
 	circuit = /obj/item/circuitboard/card/minor
 

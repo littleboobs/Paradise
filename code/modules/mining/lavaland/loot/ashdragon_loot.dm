@@ -109,7 +109,7 @@
 	return ..()
 
 
-/obj/item/melee/ghost_sword/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = MELEE_ATTACK)
+/obj/item/melee/ghost_sword/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
 	var/ghost_counter = ghost_check()
 	final_block_chance += clamp((ghost_counter * 5), 0, 75)
 	owner.visible_message("<span class='danger'>[owner] is protected by a ring of [ghost_counter] ghosts!</span>")
@@ -185,6 +185,8 @@
 	name = "staff of lava"
 	desc = "The power of fire and rocks in your hands!"
 	icon_state = "lavastaff"
+	lefthand_file = 'icons/mob/inhands/staff_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/staff_righthand.dmi'
 	item_state = "lavastaff"
 	icon = 'icons/obj/weapons/magic.dmi'
 	slot_flags = ITEM_SLOT_BACK
@@ -237,7 +239,7 @@
 				user.visible_message("<span class='danger'>[user] turns \the [T] into [transform_string]!</span>")
 				message_admins("[key_name_admin(user)] fired the lava staff at [ADMIN_COORDJMP(T)]")
 				add_attack_logs(user, target, "fired lava staff", ATKLOG_MOST)
-				T.TerraformTurf(turf_type, keep_icon = FALSE)
+				T.ChangeTurf(turf_type, keep_icon = FALSE)
 				timer = world.time + create_cooldown
 				qdel(L)
 			else
@@ -246,7 +248,7 @@
 				return
 		else
 			user.visible_message("<span class='danger'>[user] turns \the [T] into [reset_string]!</span>")
-			T.TerraformTurf(reset_turf_type, keep_icon = FALSE)
+			T.ChangeTurf(reset_turf_type, keep_icon = FALSE)
 			timer = world.time + reset_cooldown
 		playsound(T,'sound/magic/fireball.ogg', 200, 1)
 

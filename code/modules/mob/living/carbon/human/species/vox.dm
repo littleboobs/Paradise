@@ -27,6 +27,7 @@
 		TRAIT_NO_SCAN,
 		TRAIT_NO_GERMS,
 		TRAIT_NO_DECAY,
+		TRAIT_HAS_REGENERATION,
 	)
 	clothing_flags = HAS_UNDERWEAR | HAS_UNDERSHIRT | HAS_SOCKS //Species-fitted 'em all.
 	bodyflags = HAS_ICON_SKIN_TONE | HAS_TAIL | TAIL_WAGGING | TAIL_OVERLAPPED | HAS_BODY_MARKINGS | HAS_TAIL_MARKINGS | HAS_SKIN_COLOR
@@ -100,6 +101,14 @@
 	toxic_food = NONE
 	disliked_food = NONE //According to lore voxes does not care about food. Food is food.
 	liked_food = NONE
+	special_diet = MATERIAL_CLASS_TECH
+
+	age_sheet = list(
+		SPECIES_AGE_MIN = 1,
+		SPECIES_AGE_MAX = 70,
+		JOB_MIN_AGE_HIGH_ED = 10,
+		JOB_MIN_AGE_COMMAND = 10,
+	)
 
 /datum/species/vox/handle_death(gibbed, mob/living/carbon/human/H)
 	H.stop_tail_wagging()
@@ -180,6 +189,11 @@
 
 	return ..()
 
+
+/datum/species/vox/get_emote_pitch(mob/living/carbon/human/H, tolerance)
+	return 1 + (0.01*rand(-tolerance,tolerance))
+
+
 /datum/species/vox/armalis
 	name = SPECIES_VOX_ARMALIS
 	name_plural = "Vox Armalis"
@@ -206,7 +220,6 @@
 
 	inherent_traits = list(
 		TRAIT_NO_BLOOD,
-		TRAIT_HAS_REGENERATION,
 		TRAIT_NO_SCAN,
 		TRAIT_NO_PAIN,
 		TRAIT_NO_GERMS,

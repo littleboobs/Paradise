@@ -19,6 +19,9 @@
 
 /obj/item/projectile/beam/laser
 
+/obj/item/projectile/beam/laser/light
+	damage = 15
+
 /obj/item/projectile/beam/laser/heavylaser
 	name = "heavy laser"
 	icon_state = "heavylaser"
@@ -29,6 +32,11 @@
 	name = "laser slug beam"
 	damage = 50
 	stamina = 33
+
+/obj/item/projectile/beam/laser/shot
+	name = "laser shot beam"
+	icon_state = "lasershot"
+	damage = 15
 
 /obj/item/projectile/beam/practice
 	name = "practice laser"

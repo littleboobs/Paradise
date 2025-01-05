@@ -314,6 +314,17 @@
 	category = CAT_WEAPONRY
 	subcategory = CAT_AMMO
 
+/datum/crafting_recipe/lasershot
+	name = "Laser Shot Shell"
+	result = /obj/item/ammo_casing/shotgun/lasershot
+	reqs = list(/obj/item/ammo_casing/shotgun/techshell = 1,
+				/obj/item/stock_parts/capacitor/adv = 1,
+				/obj/item/stock_parts/micro_laser/high = 6)
+	tools = list(TOOL_SCREWDRIVER)
+	time = 1
+	category = CAT_WEAPONRY
+	subcategory = CAT_AMMO
+
 /datum/crafting_recipe/ishotgun
 	name = "Improvised Shotgun"
 	result = /obj/item/gun/projectile/revolver/doublebarrel/improvised
@@ -673,7 +684,7 @@
 
 /datum/crafting_recipe/bonesword
 	name = "Bone Sword"
-	result = /obj/item/claymore/bone
+	result = /obj/item/melee/claymore/bone
 	time = 4 SECONDS
 	reqs = list(/obj/item/stack/sheet/bone = 3,
 				/obj/item/stack/sheet/sinew = 2)
@@ -1394,6 +1405,14 @@
 				/obj/item/toy/crayon/spraycan = 1)
 	category = CAT_MISC
 
+/datum/crafting_recipe/ashedlockerpaint
+	name = "Ashed customisation kit"
+	result = /obj/item/paintkit/lockermech_ashed
+	time = 35
+	reqs = list(/obj/item/stack/sheet/cardboard = 5,
+				/obj/item/toy/crayon/spraycan = 1)
+	category = CAT_MISC
+
 /datum/crafting_recipe/stacklifter
 	name = "The weight stacklifter"
 	result = /obj/structure/weightmachine/stacklifter
@@ -1507,3 +1526,96 @@
 	category = CAT_WEAPONRY
 	subcategory = CAT_WEAPON
 	always_availible = FALSE
+
+/datum/crafting_recipe/pickaxe
+	name = "Iron pickaxe"
+	reqs = list(
+		/obj/item/stack/sheet/wood = 2,
+		/obj/item/stack/sheet/metal = 5
+	)
+	result = list(/obj/item/pickaxe)
+	category = CAT_PRIMAL
+
+/datum/crafting_recipe/pickaxe/silver
+	name = "Silver pickaxe"
+	reqs = list(
+		/obj/item/stack/sheet/wood = 2,
+		/obj/item/stack/sheet/mineral/silver = 5
+	)
+	result = list(/obj/item/pickaxe/silver)
+
+/datum/crafting_recipe/pickaxe/golden
+	name = "Golden pickaxe"
+	reqs = list(
+		/obj/item/stack/sheet/wood = 2,
+		/obj/item/stack/sheet/mineral/gold = 5
+	)
+	result = list(/obj/item/pickaxe/gold)
+
+/datum/crafting_recipe/pickaxe/diamond
+	name = "Diamond pickaxe"
+	reqs = list(
+		/obj/item/stack/sheet/wood = 2,
+		/obj/item/stack/sheet/mineral/diamond = 5
+	)
+	result = list(/obj/item/pickaxe/diamond)
+
+/datum/crafting_recipe/drone
+	name = "Inactive Drone"
+	result = list(/obj/item/inactive_drone)
+	reqs = list(
+			/obj/item/stack/sheet/plasteel = 10,
+			/obj/item/stack/sheet/glass = 5,
+			/obj/item/stack/rods = 25,
+			/obj/item/stack/cable_coil = 5,
+			/obj/item/stock_parts/cell = 2
+	)
+	tools = list(TOOL_SCREWDRIVER, TOOL_WELDER)
+	category = CAT_ROBOT
+	always_availible = FALSE
+	time = 5 SECONDS
+
+
+/datum/crafting_recipe/drone_circ
+	name = "Combat drone Basic Control Module"
+	result = list(/obj/item/drone_modules/drone_BCM)
+	reqs = list(
+			/obj/item/stack/sheet/plasteel = 2,
+			/obj/item/stack/sheet/glass = 1,
+			/obj/item/stack/sheet/mineral/gold = 1,
+			/obj/item/airlock_electronics = 1
+	)
+	tools = list(TOOL_SCREWDRIVER, TOOL_WELDER)
+	always_availible = FALSE
+	category = CAT_ROBOT
+	time = 1 SECONDS
+
+/datum/crafting_recipe/drone_circ_adv
+	name = "Combar drone Advanced IFF Module"
+	result = list(/obj/item/drone_modules/drone_IFF)
+	reqs = list(
+		/obj/item/stack/sheet/plasteel = 2,
+		/obj/item/stack/sheet/glass = 1,
+		/obj/item/airlock_electronics = 1,
+		/obj/item/stack/sheet/mineral/gold = 2,
+		/obj/item/stack/sheet/bluespace_crystal = 1
+	)
+	tools = list(TOOL_SCREWDRIVER, TOOL_WELDER)
+	always_availible = FALSE
+	category = CAT_ROBOT
+	time = 1 SECONDS
+
+/datum/crafting_recipe/drone_circ_ai
+	name = "Combar drone AI Control Module"
+	result = list(/obj/item/drone_modules/drone_AI)
+	reqs = list(
+			/obj/item/stack/sheet/plasteel = 2,
+			/obj/item/stack/sheet/glass = 1,
+			/obj/item/stack/sheet/mineral/gold = 1,
+			/obj/item/stack/sheet/mineral/diamond = 12,
+			/obj/item/mmi/robotic_brain = 1
+	)
+	tools = list(TOOL_SCREWDRIVER, TOOL_WELDER)
+	category = CAT_ROBOT
+	always_availible = FALSE
+	time = 1 SECONDS

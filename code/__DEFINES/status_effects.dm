@@ -30,6 +30,8 @@
 
 #define STATUS_EFFECT_REGENERATIVE_CORE /datum/status_effect/regenerative_core
 
+#define STATUS_EFFECT_DRASK_COMA /datum/status_effect/drask_coma
+
 #define STATUS_EFFECT_TERROR_REGEN /datum/status_effect/terror/regeneration   //over time healing, 125 HP within 25~ seconds
 
 #define STATUS_EFFECT_TERROR_FOOD_REGEN /datum/status_effect/terror/food_regen   //over time healing for mobs to gain full HP within 25~ seconds
@@ -94,6 +96,8 @@
 
 #define STATUS_EFFECT_CRUSHERMARK /datum/status_effect/crusher_mark //if struck with a proto-kinetic crusher, takes a ton of damage
 
+#define STATUS_EFFECT_FANG_EXHAUSTION /datum/status_effect/fang_exhaust // called by poison fang (crusher trophy)
+
 #define STATUS_EFFECT_SAWBLEED /datum/status_effect/saw_bleed //if the bleed builds up enough, takes a ton of damage
 
 #define STATUS_EFFECT_BLOODLETTING /datum/status_effect/saw_bleed/bloodletting //nerfed version
@@ -113,6 +117,8 @@
 #define STATUS_EFFECT_BUBBLEGUM_CURSE /datum/status_effect/bubblegum_curse //Bleeding. Damage over time. Fog. And, of course, a suprise for people that try to run away.
 
 #define STATUS_EFFECT_DASH /datum/status_effect/dash // Grants the ability to dash, expiring after a few seconds
+
+#define STATUS_EFFECT_VOMIT /datum/status_effect/tox_vomit // When carbon got enough tox damage - he will vomit.
 
 //#define STATUS_EFFECT_NECROPOLIS_CURSE /datum/status_effect/necropolis_curse
 //#define CURSE_BLINDING	1 //makes the edges of the target's screen obscured
@@ -182,3 +188,5 @@
 #define STATUS_EFFECT_OFFERING_ITEM /datum/status_effect/offering_item
 
 #define STATUS_EFFECT_STARING /datum/status_effect/staring //Used in ../human/examine() proc
+
+#define STATUS_EFFECT_RECENTLY_SUCCUMBED /datum/status_effect/recently_succumbed

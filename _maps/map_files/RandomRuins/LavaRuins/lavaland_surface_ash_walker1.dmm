@@ -196,6 +196,7 @@
 /obj/item/stack/sheet/cloth/ten,
 /obj/item/stack/medical/splint,
 /obj/item/storage/firstaid/adv,
+/obj/item/kitchen/utensil/fork,
 /turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
 /area/ruin/unpowered/ash_walkers)
 "aF" = (
@@ -1401,6 +1402,14 @@
 	},
 /turf/simulated/mineral/volcanic/lava_land_surface,
 /area/lavaland/surface/outdoors)
+"qj" = (
+/obj/structure/stone_tile/cracked{
+	dir = 4
+	},
+/obj/effect/mapping_helpers/no_lava,
+/obj/effect/decal/cleanable/ashrune,
+/turf/simulated/floor/plating/asteroid/basalt/lava_land_surface,
+/area/lavaland/surface/outdoors)
 "zz" = (
 /obj/effect/mapping_helpers/no_lava,
 /obj/structure/stone_tile{
@@ -1605,7 +1614,7 @@ ak
 ak
 cg
 cb
-cg
+qj
 cn
 bL
 dr

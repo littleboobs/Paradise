@@ -254,7 +254,7 @@ GLOBAL_LIST_INIT(data_storages, list()) //list of all cargo console data storage
  **************************/
 /obj/machinery/computer/syndie_supplycomp
 	name = "Supply Pad Console"
-	desc = "Used to order supplies by using syndiepads!"
+	desc = "Необходим для оформления заказов используя SyndiePads!"
 	icon_screen = "syndinavigation"
 	icon_keyboard = "syndie_key"
 	req_access = list(ACCESS_SYNDICATE_CARGO)
@@ -306,7 +306,7 @@ GLOBAL_LIST_INIT(data_storages, list()) //list of all cargo console data storage
 		var/turf/T = pick_n_take(spawnTurfs)		//turf we will place it in
 		for(var/obj/machinery/syndiepad/recieving_pad as anything in recievingPads)
 			recieving_pad.use_power(10000 / recieving_pad.power_efficiency)
-			flick("sqpad-beam", recieving_pad )
+			flick("[initial(recieving_pad.icon_state)]-beam", recieving_pad)
 			playsound(get_turf(recieving_pad), 'sound/weapons/emitter2.ogg', 25, TRUE)
 
 		if(!T)
@@ -328,7 +328,6 @@ GLOBAL_LIST_INIT(data_storages, list()) //list of all cargo console data storage
 /obj/machinery/computer/syndie_supplycomp/proc/sell() //Этот код ищет зоны где находятся телепады отправки и продаёт ящики и товар в них
 
 	var/plasma_count = 0
-	var/intel_count = 0
 	var/crate_count = 0
 
 	var/msg = "<center>---[station_time_timestamp()]---</center><br>"
@@ -418,9 +417,13 @@ GLOBAL_LIST_INIT(data_storages, list()) //list of all cargo console data storage
 						var/obj/item/stack/sheet/mineral/plasma/P = thing
 						plasma_count += P.amount
 
-					// Sell nanotrasen intel
-					if(istype(thing, /obj/item/documents/nanotrasen))
-						++intel_count
+					// Sell intel
+					if(istype(thing, /obj/item/documents))
+						var/obj/item/documents/docs = thing
+						if(INTEREST_SYNDICATE & docs.sell_interest)
+							cashEarned = round(data_storage.cash_per_intel * docs.sell_multiplier)
+							data_storage.cash += cashEarned
+							msg += "[span_good("+[cashEarned]")]: Received enemy intelligence.<br>"
 
 					// Sell tech levels
 					if(istype(thing, /obj/item/disk/tech_disk))
@@ -481,11 +484,6 @@ GLOBAL_LIST_INIT(data_storages, list()) //list of all cargo console data storage
 		msg += "[span_good("+[cashEarned]")]: Received [plasma_count] unit(s) of exotic material.<br>"
 		data_storage.cash += cashEarned
 
-	if(intel_count > 0)
-		cashEarned = round(intel_count * data_storage.cash_per_intel)
-		msg += "[span_good("+[cashEarned]")]: Received [intel_count] article(s) of enemy intelligence.<br>"
-		data_storage.cash += cashEarned
-
 	if(crate_count > 0)
 		cashEarned = round(crate_count * data_storage.cash_per_crate)
 		msg += "[span_good("+[cashEarned]")]: Received [crate_count] crate(s).<br>"
@@ -496,7 +494,7 @@ GLOBAL_LIST_INIT(data_storages, list()) //list of all cargo console data storage
 
 /obj/machinery/computer/syndie_supplycomp/public
 	name = "Supply Ordering Console"
-	desc = "Used to order supplies from cargo staff."
+	desc = "Используется для оформления заказов у отдела снабжения"
 	circuit = /obj/item/circuitboard/syndicatesupplycomp/public
 	req_access = list()
 	is_public = TRUE

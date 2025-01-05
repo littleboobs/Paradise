@@ -135,6 +135,7 @@
 				/obj/item/stack/tape_roll = 10,
 				/obj/item/storage/bag/plasticbag = 20,
 				/obj/item/caution = 10,
+				/obj/item/clothing/head/helmet/biker = 2,
 				////////////////CONTRABAND STUFF//////////////////
 				/obj/item/grenade/clown_grenade = 3,
 				/obj/item/seeds/ambrosia/cruciatus = 3,
@@ -164,15 +165,6 @@
 				/obj/item/storage/box/syndie_kit/mr_chang_technique = 1,
 				/obj/item/clothing/glasses/chameleon/meson = 7,
 				"" = 61
-				)
-
-/obj/effect/spawner/lootdrop/crate_spawner // for ruins
-	name = "lootcrate spawner"
-	icon_state = "lootcrate"
-	lootdoubles = FALSE
-	loot = list(
-				/obj/structure/closet/crate/secure/loot = 20,
-				"" = 80,
 				)
 
 /obj/effect/spawner/lootdrop/maintenance/double
@@ -402,11 +394,11 @@
 /obj/effect/spawner/lootdrop/trade_sol/vehicle
 	name = "9. Vehicle"
 	loot = list(
-		/obj/vehicle/motorcycle = 50,
-		/obj/vehicle/snowmobile/key = 50,
-		/obj/vehicle/snowmobile/blue/key = 50,
-		/obj/vehicle/space/speedbike/red = 50,
-		/obj/vehicle/space/speedbike = 50)
+		/obj/vehicle/ridden/motorcycle = 50,
+		/obj/vehicle/ridden/snowmobile/key = 50,
+		/obj/vehicle/ridden/snowmobile/blue/key = 50,
+		/obj/vehicle/ridden/speedbike/red = 50,
+		/obj/vehicle/ridden/speedbike = 50)
 
 /obj/effect/spawner/lootdrop/trade_sol/vehicle/Initialize(mapload)
 	while(lootcount)

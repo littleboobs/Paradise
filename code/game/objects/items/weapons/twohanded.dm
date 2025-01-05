@@ -38,6 +38,9 @@
 	var/unwieldsound = FALSE
 	var/sharp_when_wielded = FALSE
 
+	lefthand_file = 'icons/mob/inhands/twohanded_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/twohanded_righthand.dmi'
+
 
 /obj/item/twohanded/Initialize(mapload)
 	. = ..()
@@ -271,10 +274,10 @@
 		return .
 
 	if(prob(50))
-		INVOKE_ASYNC(src, PROC_REF(jedi_spin), user)
+		INVOKE_ASYNC(src, GLOBAL_PROC_REF(jedi_spin), user)
 
 
-/obj/item/twohanded/dualsaber/proc/jedi_spin(mob/living/user)
+/proc/jedi_spin(mob/living/user)
 	for(var/i in list(NORTH, SOUTH, EAST, WEST, EAST, SOUTH, NORTH, SOUTH, EAST, WEST, EAST, SOUTH))
 		user.setDir(i)
 		if(i == WEST)
@@ -282,7 +285,7 @@
 		sleep(1)
 
 
-/obj/item/twohanded/dualsaber/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = MELEE_ATTACK)
+/obj/item/twohanded/dualsaber/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
 	if(HAS_TRAIT(src, TRAIT_WIELDED))
 		return ..()
 	return FALSE
@@ -505,11 +508,6 @@
 		mounted_head = null
 	qdel(src)
 
-/obj/item/twohanded/spear/kidan
-	icon_state = "kidanspear0"
-	name = "Kidan spear"
-	desc = "A spear brought over from the Kidan homeworld."
-
 
 // DIY CHAINSAW
 /obj/item/twohanded/required/chainsaw
@@ -571,7 +569,7 @@
 	armour_penetration = 100
 	force_on = 30
 
-/obj/item/twohanded/required/chainsaw/doomslayer/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = MELEE_ATTACK)
+/obj/item/twohanded/required/chainsaw/doomslayer/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = ITEM_ATTACK)
 	if(attack_type == PROJECTILE_ATTACK)
 		owner.visible_message("<span class='danger'>Ranged attacks just make [owner] angrier!</span>")
 		playsound(src, pick('sound/weapons/bulletflyby.ogg','sound/weapons/bulletflyby2.ogg','sound/weapons/bulletflyby3.ogg'), 75, 1)
@@ -664,37 +662,49 @@
 	icon_state = "mjollnir[HAS_TRAIT(src, TRAIT_WIELDED)]"
 
 
-/obj/item/twohanded/singularityhammer/proc/vortex(turf/pull, mob/wielder)
-	for(var/atom/movable/X in orange(5, pull))
-		if(X == wielder)
-			continue
-		if((X) && (!X.anchored) && (!ishuman(X)))
-			step_towards(X, pull)
-			step_towards(X, pull)
-			step_towards(X, pull)
-		else if(ishuman(X))
-			var/mob/living/carbon/human/H = X
-			if(istype(H.shoes, /obj/item/clothing/shoes/magboots))
-				var/obj/item/clothing/shoes/magboots/M = H.shoes
-				if(M.magpulse)
-					continue
-			H.Weaken(2 SECONDS)
-			step_towards(H, pull)
-			step_towards(H, pull)
-			step_towards(H, pull)
-
 /obj/item/twohanded/singularityhammer/afterattack(atom/A, mob/user, proximity, params)
-	if(!proximity)
+	if(!proximity || charged < 5 || !HAS_TRAIT(src, TRAIT_WIELDED))
 		return
-	if(HAS_TRAIT(src, TRAIT_WIELDED))
-		if(charged == 5)
-			charged = 0
-			if(isliving(A))
-				var/mob/living/Z = A
-				Z.take_organ_damage(20, 0)
-			playsound(user, 'sound/weapons/marauder.ogg', 50, 1)
-			var/turf/target = get_turf(A)
-			vortex(target, user)
+
+	charged = 0
+	var/turf/target = get_turf(A)
+	playsound(target, 'sound/weapons/marauder.ogg', 50, TRUE)
+
+	if(isliving(A))
+		var/mob/living/victim = A
+		victim.take_organ_damage(20)
+
+	for(var/atom/pulled_thing as anything in (orange(5, target) - user))
+		pulled_thing.singularity_hammer_act(target)
+
+
+/atom/proc/singularity_hammer_act(turf/pull)
+	return
+
+
+/atom/movable/singularity_hammer_act(turf/pull)
+	if(anchored)
+		return
+
+	unbuckle_all_mobs()
+
+	for(var/a in 1 to 3)
+		if(!step_towards(src, pull))
+			return
+
+
+/mob/dead/observer/singularity_hammer_act(turf/pull)
+	return
+
+
+/mob/living/singularity_hammer_act(turf/pull)
+	if(HAS_TRAIT(src, TRAIT_NEGATES_GRAVITY))
+		return
+
+	buckled?.unbuckle_mob(src)
+	Weaken(2 SECONDS)
+	..()
+
 
 /obj/item/twohanded/mjollnir
 	name = "Mjolnir"

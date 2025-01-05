@@ -84,7 +84,7 @@
 
 
 /obj/item/organ/internal/lungs/proc/check_breath(datum/gas_mixture/breath, mob/living/carbon/human/H)
-	if((H.status_flags & GODMODE) || HAS_TRAIT(H, TRAIT_NO_BREATH))
+	if(HAS_TRAIT(H, TRAIT_GODMODE) || HAS_TRAIT(H, TRAIT_NO_BREATH))
 		return
 
 	if(!breath || (breath.total_moles() == 0))
@@ -333,6 +333,30 @@
 	cold_level_2_damage = -COLD_GAS_DAMAGE_LEVEL_2
 	cold_level_3_damage = -COLD_GAS_DAMAGE_LEVEL_3
 	cold_damage_types = list(BRUTE = 0.5, BURN = 0.25)
+
+	var/cooling_start_temp = DRASK_LUNGS_COOLING_START_TEMP
+	var/cooling_stop_temp = DRASK_LUNGS_COOLING_STOP_TEMP
+
+/obj/item/organ/internal/lungs/drask/insert(mob/living/carbon/target, special = ORGAN_MANIPULATION_DEFAULT)
+	. = ..()
+
+	if(!.)
+		return FALSE
+
+	RegisterSignal(owner, COMSIG_HUMAN_EARLY_HANDLE_ENVIRONMENT, PROC_REF(regulate_temperature))
+
+/obj/item/organ/internal/lungs/drask/proc/regulate_temperature(mob/living/source, datum/gas_mixture/environment)
+	SIGNAL_HANDLER
+	
+	if(source.stat == DEAD)
+		return
+
+	if(owner.bodytemperature > cooling_start_temp && environment.temperature <= cooling_stop_temp)
+		owner.adjust_bodytemperature(-5)
+
+/obj/item/organ/internal/lungs/drask/remove(mob/living/user, special = ORGAN_MANIPULATION_DEFAULT)
+	UnregisterSignal(owner, COMSIG_HUMAN_EARLY_HANDLE_ENVIRONMENT)
+	return ..()
 
 /obj/item/organ/internal/lungs/cybernetic
 	name = "cybernetic lungs"

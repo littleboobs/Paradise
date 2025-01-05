@@ -58,8 +58,8 @@
 	..()
 	if(stat & (BROKEN|NOPOWER))
 		return
-	var/temp = input(usr, "Choose a dye color", "Dye Color") as color|null
-	if(!temp)
+	var/temp = tgui_input_color(usr, "Choose a dye color", "Dye Color")
+	if(isnull(temp))
 		return
 	set_light_color(temp)
 
@@ -112,7 +112,7 @@
 
 
 /obj/item/hair_dye_bottle/attack(mob/living/carbon/human/target, mob/living/user, params, def_zone, skip_attack_anim = FALSE)
-	if(ishuman(target) || user.a_intent != INTENT_HELP || !(target in view(1)))
+	if(!ishuman(target) || user.a_intent != INTENT_HELP || !(target in view(1)))
 		return ..()
 
 	. = ATTACK_CHAIN_PROCEED

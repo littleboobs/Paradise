@@ -89,12 +89,15 @@
 	var/sec_record = ""
 	var/gen_record = ""
 	var/exploit_record = ""
-	var/lastpuke = 0
 	/// For speaking/listening.
-	var/list/languages
+	var/list/datum/language/languages
 	/// For reagents that grant language knowlege.
 	var/list/temporary_languages
-	var/list/speak_emote = list("says")   // Verbs used when speaking. Defaults to 'say' if speak_emote is null.
+	var/list/speak_emote = list()   // Verbs used when speaking. Defaults to 'say' if speak_emote is null.
+	var/verb_say = "says"
+	var/verb_ask = "asks"
+	var/verb_exclaim = list("exclaims", "shouts")
+	var/verb_yell = "yells"
 	/// Define emote default type, EMOTE_VISIBLE for seen emotes, EMOTE_AUDIBLE for heard emotes.
 	var/emote_type = EMOTE_VISIBLE
 	var/name_archive //For admin things like possession
@@ -124,6 +127,8 @@
 	var/obj/item/clothing/mask/wear_mask = null //Carbon
 
 	var/datum/hud/hud_used = null
+	/// Mob hud type
+	var/hud_type = /datum/hud
 
 	hud_possible = list(SPECIALROLE_HUD)
 

@@ -53,20 +53,32 @@ GLOBAL_LIST_EMPTY(antagonists)
 /datum/antagonist/Destroy(force)
 	for(var/datum/objective/objective as anything in objectives)
 		objectives -= objective
+
 		if(!objective.team)
 			qdel(objective)
+
 	remove_owner_from_gamemode()
 	GLOB.antagonists -= src
+
 	if(!silent)
 		farewell()
+
 	remove_innate_effects()
+
 	antag_memory = null
+
 	var/datum/team/team = get_team()
 	team?.remove_member(owner)
+
 	if(owner)
 		LAZYREMOVE(owner.antag_datums, src)
+
+		if(!LAZYLEN(owner.antag_datums)) // that one was the last antag datum.
+			handle_last_instance_removal()
+
 	restore_last_hud_and_role()
 	owner = null
+
 	return ..()
 
 
@@ -92,7 +104,14 @@ GLOBAL_LIST_EMPTY(antagonists)
 /datum/antagonist/proc/is_banned(mob/user)
 	if(!user)
 		return FALSE
+
 	return (jobban_isbanned(user, ROLE_SYNDICATE) || (job_rank && jobban_isbanned(user, job_rank)))
+
+/**
+ * When our datum was last and became removed. 
+ */
+/datum/antagonist/proc/handle_last_instance_removal()
+	return
 
 
 /**
@@ -130,7 +149,7 @@ GLOBAL_LIST_EMPTY(antagonists)
 	apply_innate_effects()
 	messages.Add(finalize_antag())
 	if(wiki_page_name)
-		messages.Add("<span class='motd'>С полной информацией вы можете ознакомиться на вики: <a href=\"https://wiki.ss220.space/index.php/[wiki_page_name]\">[russian_wiki_name]</span>")
+		messages.Add("<span class='motd'>С полной информацией вы можете ознакомиться на вики: <a href=\"[CONFIG_GET(string/wikiurl)]/index.php/[wiki_page_name]\">[russian_wiki_name]</span>")
 	to_chat(owner.current, chat_box_red(messages.Join("<br>")))
 
 	if(is_banned(owner.current) && replace_banned)
@@ -445,3 +464,23 @@ GLOBAL_LIST_EMPTY(antagonists)
  */
 /datum/antagonist/proc/roundend_report_footer()
 	return
+
+/**
+ * Create and assign a single randomized objective.
+ */
+/datum/antagonist/proc/forge_single_objective()
+	if(prob(50))
+		if(length(active_ais()) && prob(100 / length(GLOB.player_list)))
+			add_objective(/datum/objective/destroy)
+
+		else if(prob(5))
+			add_objective(/datum/objective/debrain)
+
+		else if(prob(20))
+			add_objective(/datum/objective/protect)
+
+		else
+			add_objective(/datum/objective/maroon)
+
+	else
+		add_objective(/datum/objective/steal)

@@ -146,6 +146,11 @@
 	operate_panel()
 
 
+/obj/structure/closet/fireaxecabinet/blob_act(obj/structure/blob/B)
+	if(fireaxe)
+		fireaxe.forceMove(loc)
+	qdel(src)
+
 /obj/structure/closet/fireaxecabinet/attack_tk(mob/user)
 	if(localopened && fireaxe)
 		fireaxe.forceMove(loc)
@@ -168,6 +173,9 @@
 	else
 		to_chat(user, span_notice("Cabinet unlocked."))
 
+/obj/structure/closet/fireaxecabinet/shove_impact(mob/living/target, mob/living/attacker)
+	// no, you can't shove people into a fireaxe cabinet either
+	return FALSE
 
 /obj/structure/closet/fireaxecabinet/proc/operate_panel()
 	if(operating)
@@ -247,6 +255,11 @@
 
 	return ..()
 
+
+/obj/structure/fishingrodcabinet/blob_act(obj/structure/blob/B)
+	if(olreliable)
+		olreliable.forceMove(loc)
+	qdel(src)
 
 /obj/structure/fishingrodcabinet/attack_hand(mob/user)
 	if(!olreliable)

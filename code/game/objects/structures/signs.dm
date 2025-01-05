@@ -212,10 +212,20 @@
 	desc = "This plaque commemorates the fall of the Atmos ZAS division. For all the charred, dizzy, and brittle men who have died in its horrible hands."
 	icon_state = "atmosplaque"
 
+/obj/structure/sign/beautyplaque
+	name = "The Most Beautiful Woman Award for Beauty"
+	desc = "Don't think, feel! It's like pointing your finger at the singularity. Don't concentrate on your finger, or you'll miss this divine beauty."
+	icon_state = "beautyplaque"
+
 /obj/structure/sign/kidanplaque
 	name = "Kidan wall trophy"
 	desc = "A dead and stuffed Diona nymph, mounted on a board."
 	icon_state = "kidanplaque"
+
+/obj/structure/sign/tajarplaque
+	name = "Tajaran wall plaque"
+	desc = "A nice tajaran photo, mounted on a board."
+	icon_state = "tajarplaque"
 
 /obj/structure/sign/mech
 	name = "\improper mech painting"
