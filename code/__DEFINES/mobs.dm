@@ -336,6 +336,8 @@
 
 #define is_admin(user)	(check_rights(R_ADMIN, 0, (user)) != 0)
 
+#define is_developer(user) (check_rights(R_VIEWRUNTIMES, FALSE, user)
+
 #define SLEEP_CHECK_DEATH(A, X) \
 	sleep(X); \
 	if(QDELETED(A)) return; \
@@ -461,3 +463,6 @@
 
 /// For babylon fever disease.
 #define DISEASE_MOB_LANGUAGE_PROCESSED (1<<0)
+
+/// Eyes examine time mod
+#define EXAMINE_INSTANT	0 // 0 seconds

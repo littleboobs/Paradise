@@ -356,13 +356,14 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 				if(SPECIES_VOX)
 					dat += "<b>N2 Tank:</b> <a href='byond://?_src_=prefs;preference=speciesprefs;task=input'>[speciesprefs ? "Large N2 Tank" : "Specialized N2 Tank"]</a><br>"
 				if(SPECIES_GREY)
-					dat += "<b>Wingdings:</b> Set in disabilities<br>"
-					dat += "<b>Voice Translator:</b> <a href='byond://?_src_=prefs;preference=speciesprefs;task=input'>[speciesprefs ? "Yes" : "No"]</a><br>"
+					dat += "<b>Wingdings:</b> <a href='byond://?_src_=prefs;preference=toggle_wingdings;task=input'>[disabilities & DISABILITY_FLAG_WINGDINGS ? "Yes" : "No"]</a><br>"
+					dat += "<b>Install Wingdings Decoder:</b> <a href='byond://?_src_=prefs;preference=speciesprefs;task=input'>[speciesprefs ? "Yes" : "No"]</a><br>"
 				if(SPECIES_MACNINEPERSON)
 					dat += "<b>Synthetic Shell:</b> <a href='byond://?_src_=prefs;preference=ipcloadouts;task=input'>Selections</a><br>"
 				if(SPECIES_WRYN)
 					dat += "<b>Comb Deafness:</b> <a href='byond://?_src_=prefs;preference=speciesprefs;task=input'>[speciesprefs ? "Yes" : "No"]</a><br>"
-			dat += "<b>Secondary Language:</b> <a href='byond://?_src_=prefs;preference=language;task=input'>[language]</a><br>"
+			if(species != SPECIES_GREY)
+				dat += "<b>Secondary Language:</b> <a href='byond://?_src_=prefs;preference=language;task=input'>[language]</a><br>"
 			if(S.autohiss_basic_map)
 				dat += "<b>Auto-accent:</b> <a href='byond://?_src_=prefs;preference=autohiss_mode;task=input'>[autohiss_mode == AUTOHISS_FULL ? "Full" : (autohiss_mode == AUTOHISS_BASIC ? "Basic" : "Off")]</a><br>"
 			dat += "<b>Blood Type:</b> <a href='byond://?_src_=prefs;preference=b_type;task=input'>[b_type]</a><br>"
@@ -1675,6 +1676,10 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 							autohiss_mode = AUTOHISS_OFF
 				if("speciesprefs")
 					speciesprefs = !speciesprefs //Starts 0, so if someone clicks the button up top there, this won't be 0 anymore. If they click it again, it'll go back to 0.
+				if("toggle_wingdings")
+					var/dflag  = text2num(DISABILITY_FLAG_WINGDINGS)
+					if(dflag >= 0)
+						disabilities ^= text2num(DISABILITY_FLAG_WINGDINGS)
 				if("language")
 //						var/languages_available
 					var/list/new_languages = list("None")
@@ -1723,14 +1728,14 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 						b_type = new_b_type
 
 				if("hair")
-					if(species in list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_TAJARAN, SPECIES_SKRELL, SPECIES_MACNINEPERSON, SPECIES_VULPKANIN, SPECIES_VOX, SPECIES_WRYN)) //Species that have hair. (No HAS_HAIR flag)
+					if(species in list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_TAJARAN, SPECIES_SKRELL, SPECIES_MACNINEPERSON, SPECIES_WRYN, SPECIES_VULPKANIN, SPECIES_VOX)) //Species that have hair. (No HAS_HAIR flag)
 						var/input = "Choose your character's hair colour:"
 						var/new_hair = tgui_input_color(user, input, "Character Preference", h_colour)
 						if(!isnull(new_hair))
 							h_colour = new_hair
 
 				if("secondary_hair")
-					if(species in list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_TAJARAN, SPECIES_SKRELL, SPECIES_MACNINEPERSON, SPECIES_VULPKANIN, SPECIES_VOX))
+					if(species in list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_TAJARAN, SPECIES_SKRELL, SPECIES_MACNINEPERSON, SPECIES_WRYN, SPECIES_VULPKANIN, SPECIES_VOX))
 						var/datum/sprite_accessory/hair_style = GLOB.hair_styles_public_list[h_style]
 						if(hair_style.secondary_theme && !hair_style.no_sec_colour)
 							var/new_hair = tgui_input_color(user, "Choose your character's secondary hair colour:", "Character Preference", h_sec_colour)
@@ -1956,13 +1961,13 @@ GLOBAL_LIST_INIT(special_role_times, list( //minimum age (in days) for accounts 
 
 
 				if("facial")
-					if(species in list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_TAJARAN, SPECIES_SKRELL, SPECIES_MACNINEPERSON, SPECIES_VULPKANIN, SPECIES_VOX)) //Species that have facial hair. (No HAS_HAIR_FACIAL flag)
+					if(species in list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_TAJARAN, SPECIES_SKRELL, SPECIES_MACNINEPERSON, SPECIES_WRYN, SPECIES_VULPKANIN, SPECIES_VOX)) //Species that have facial hair. (No HAS_HAIR_FACIAL flag)
 						var/new_facial = tgui_input_color(user, "Choose your character's facial-hair colour:", "Character Preference", f_colour)
 						if(!isnull(new_facial))
 							f_colour = new_facial
 
 				if("secondary_facial")
-					if(species in list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_TAJARAN, SPECIES_SKRELL, SPECIES_MACNINEPERSON, SPECIES_VULPKANIN, SPECIES_VOX))
+					if(species in list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_TAJARAN, SPECIES_SKRELL, SPECIES_MACNINEPERSON, SPECIES_WRYN, SPECIES_VULPKANIN, SPECIES_VOX))
 						var/datum/sprite_accessory/facial_hair_style = GLOB.facial_hair_styles_list[f_style]
 						if(facial_hair_style.secondary_theme && !facial_hair_style.no_sec_colour)
 							var/new_facial = tgui_input_color(user, "Choose your character's secondary facial-hair colour:", "Character Preference", f_sec_colour)
