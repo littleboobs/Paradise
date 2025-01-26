@@ -30,9 +30,9 @@
 		return .
 	if(!get_location_accessible(target, BODY_ZONE_PRECISE_MOUTH))
 		if(target == user)
-			to_chat(user, span_warning("Your face is obscured."))
+			to_chat(user, span_warning("Ваше лицо закрыто."))
 		else
-			to_chat(user, span_warning("[target]'s face is obscured."))
+			to_chat(user, span_warning("Лицо [target.name] закрыто."))
 		return .
 	if(!user.can_unEquip(src))
 		return .

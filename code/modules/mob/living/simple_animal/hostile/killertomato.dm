@@ -10,9 +10,9 @@
 	health = 30
 	nightvision = 3
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/tomatomeat = 2)
-	response_help  = "prods"
-	response_disarm = "pushes aside"
-	response_harm   = "smacks"
+	response_help  = "толкает"
+	response_disarm = "отодвигает в сторону"
+	response_harm   = "шлепает"
 	melee_damage_lower = 8
 	melee_damage_upper = 12
 	attacktext = "кусает"

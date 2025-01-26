@@ -159,9 +159,9 @@
 		// INNATE is the flag for audible-emote-language, so we don't want to show an "x talks but you cannot hear them" message if it's set
 		// if(!language || !(language.flags & INNATE))
 		if(speaker == src)
-			to_chat(src, "<span class='warning'>You cannot hear yourself speak!</span>")
+			to_chat(src, span_warning("Вы не слышите, что говорите!"))
 		else
-			to_chat(src, "<span class='name'>[speaker.name]</span> talks but you cannot hear [speaker.p_them()].")
+			to_chat(src, "<span class='name'>[speaker.name]</span> говор[pluralize_ru(speaker.gender, "ит", "ят")], но вы не слышите [genderize_ru(speaker.gender, "его", "её", "его", "их")].")
 	else
 		to_chat(src, "<span class='game say'><span class='name'>[speaker_name]</span>[speaker.GetAltName()] [track][verb_message(message_pieces, message, verb)]</span>")
 
@@ -233,7 +233,7 @@
 
 	if(!can_hear())
 		if(prob(20))
-			to_chat(src, "<span class='warning'>You feel your headset vibrate but can hear nothing from it!</span>")
+			to_chat(src, span_warning("Вы чувствуете, как вибрирует ваша гарнитура, но ничего не слышите!"))
 	else
 		to_chat(src, "[part_a][track || speaker_name][part_b][message]</span></span>")
 		if(client?.prefs.toggles2 & PREFTOGGLE_2_RUNECHAT)
@@ -273,11 +273,11 @@
 				heardword = copytext(heardword,2)
 			if(copytext(heardword,-1) in punctuation)
 				heardword = copytext(heardword,1,length(heardword))
-			heard = "<span class='game say'>...<i>You hear something about<i>... '[heardword]'...</span>"
+			heard = span_gamesay("...<i>Вы слышите что-то о<i>... '[heardword]'...")
 		else
-			heard = "<span class='game say'>...<i>You almost hear something...</i>...</span>"
+			heard = span_gamesay("...<i>Вы едва что-то слышите</i>...")
 	else
-		heard = "<span class='game say'>...<i>You almost hear someone talking</i>...</span>"
+		heard = span_gamesay("...<i>Вы едва слышите, как кто-то говорит</i>...")
 
 	to_chat(src, heard)
 
@@ -310,7 +310,7 @@
 		effect = SOUND_EFFECT_RADIO_ROBOT
 	INVOKE_ASYNC(GLOBAL_PROC, /proc/tts_cast, H, src, message_tts, speaker.tts_seed, TRUE, effect)
 
-	var/rendered = "<span class='game say'><span class='name'>[name]</span> [message]</span>"
+	var/rendered = span_gamesay("<span class='name'>[name]</span> [message]")
 	to_chat(src, rendered)
 
 

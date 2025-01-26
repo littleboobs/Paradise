@@ -371,34 +371,34 @@ BLIND     // can't see anything
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 	if(user.pulledby && user.pulledby.grab_state >= GRAB_NECK)
-		to_chat(user, "You can't reach the controls.")
+		to_chat(user, "Вы не можете добраться до датчика.")
 		return
 	if(has_sensor >= 2)
-		to_chat(user, "The controls are locked.")
+		to_chat(user, "Датчик заблокирован.")
 		return
 	if(has_sensor <= 0)
-		to_chat(user, "This suit does not have any sensors.")
+		to_chat(user, "Этот костюм не имеет датчика.")
 		return
 
-	var/list/modes = list("Off", "Binary sensors", "Vitals tracker", "Tracking beacon")
-	var/switchMode = tgui_input_list(user, "Select a sensor mode:", "Suit Sensor Mode", modes, modes[sensor_mode+1])
+	var/list/modes = list("Выкл.", "Бинарный сенсор", "Отслеживание показателей", "Отслеживающий маячок")
+	var/switchMode = tgui_input_list(user, "Выберите режим работы датчика:", "Режим работы датчика костюма", modes, modes[sensor_mode+1])
 	if(!switchMode)
 		return
 	if(get_dist(user, src) > 1)
-		to_chat(user, "You have moved too far away.")
+		to_chat(user, "Вы отошли слишком далеко.")
 		return
 	sensor_mode = modes.Find(switchMode) - 1
 
 	if(src.loc == user)
 		switch(sensor_mode)
 			if(0)
-				to_chat(user, "You disable your suit's remote sensing equipment.")
+				to_chat(user, "Вы отключаете датчик вашего костюма.")
 			if(1)
-				to_chat(user, "Your suit will now report whether you are live or dead.")
+				to_chat(user, "Теперь датчик вашего костюма будет сообщать, живы вы или мертвы.")
 			if(2)
-				to_chat(user, "Your suit will now report your vital lifesigns.")
+				to_chat(user, "Теперь датчик вашего костюма будет сообщать о ваших жизненных показателях.")
 			if(3)
-				to_chat(user, "Your suit will now report your vital lifesigns as well as your coordinate position.")
+				to_chat(user, "Теперь датчик вашего костюма будет сообщать о ваших жизненных показателях, а также о вашем местоположении.")
 		if(ishuman(user))
 			var/mob/living/carbon/human/H = user
 			if(H.w_uniform == src)
@@ -408,16 +408,16 @@ BLIND     // can't see anything
 		switch(sensor_mode)
 			if(0)
 				for(var/mob/V in viewers(user, 1))
-					V.show_message("<span class='warning'>[user] disables [src.loc]'s remote sensing equipment.</span>", 1)
+					V.show_message(span_warning("[user] отключа[pluralize_ru(user.gender, "ет", "ют")] датчик [src.loc]."), 1)
 			if(1)
 				for(var/mob/V in viewers(user, 1))
-					V.show_message("[user] turns [src.loc]'s remote sensors to binary.", 1)
+					V.show_message("[user] перевод[pluralize_ru(user.gender, "ит", "ят")] датчик [src.loc] в бинарный режим.", 1)
 			if(2)
 				for(var/mob/V in viewers(user, 1))
-					V.show_message("[user] sets [src.loc]'s sensors to track vitals.", 1)
+					V.show_message("[user] устанавлива[pluralize_ru(user.gender, "ет", "ют")] датчик [src.loc] в режим отслеживающий жизненные показатели.", 1)
 			if(3)
 				for(var/mob/V in viewers(user, 1))
-					V.show_message("[user] sets [src.loc]'s sensors to maximum.", 1)
+					V.show_message("[user] устанавлива[pluralize_ru(user.gender, "ет", "ют")] датчик [src.loc] на максимум.", 1)
 		if(ishuman(src))
 			var/mob/living/carbon/human/H = src
 			if(H.w_uniform == src)
