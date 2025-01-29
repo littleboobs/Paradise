@@ -374,10 +374,10 @@ BLIND     // can't see anything
 		balloon_alert(user, "не добраться")
 		return
 	if(has_sensor >= 2)
-		balloon_alert(user, "датчики заблокированы")
+		balloon_alert(user, "датчики заблокированы!")
 		return
 	if(has_sensor <= 0)
-		balloon_alert(user, "датчиков нет")
+		balloon_alert(user, "датчики отсутствуют!)
 		return
 
 	var/list/modes = list("Выключены", "Бинарный режим", "Мониторинг жизненных показателей", "Полный мониторинг")
