@@ -371,7 +371,7 @@ BLIND     // can't see anything
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 	if(user.pulledby && user.pulledby.grab_state >= GRAB_NECK)
-		balloon_alert(user, "не добраться")
+		balloon_alert(user, "не добраться!")
 		return
 	if(has_sensor >= 2)
 		balloon_alert(user, "датчики заблокированы!")
