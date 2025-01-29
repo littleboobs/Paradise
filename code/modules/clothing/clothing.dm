@@ -371,21 +371,21 @@ BLIND     // can't see anything
 	if(user.incapacitated() || HAS_TRAIT(user, TRAIT_HANDS_BLOCKED))
 		return
 	if(user.pulledby && user.pulledby.grab_state >= GRAB_NECK)
-		to_chat(user, "Вы не можете добраться до датчиков.")
+		balloon_alert(user, "не добраться")
 		return
 	if(has_sensor >= 2)
-		to_chat(user, "Датчики заблокированы.")
+		balloon_alert(user, "датчики заблокированы")
 		return
 	if(has_sensor <= 0)
-		to_chat(user, "Этот костюм не имеет датчиков.")
+		balloon_alert(user, "датчиков нет")
 		return
 
-	var/list/modes = list("Выключены", "Бинарный режим", "Мониторинг жизненных показателей", "Отслеживающий маячок")
+	var/list/modes = list("Выключены", "Бинарный режим", "Мониторинг жизненных показателей", "Полный мониторинг")
 	var/switchMode = tgui_input_list(user, "Выберите режим работы датчиков:", "Режим работы датчиков костюма", modes, modes[sensor_mode+1])
 	if(!switchMode)
 		return
 	if(get_dist(user, src) > 1)
-		to_chat(user, "Вы отошли слишком далеко.")
+		balloon_alert(user, "слишком далеко!")
 		return
 	sensor_mode = modes.Find(switchMode) - 1
 
