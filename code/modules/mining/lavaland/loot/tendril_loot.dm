@@ -127,14 +127,14 @@
 
 /obj/item/book_of_babel
 	name = "Book of Babel"
-	desc = "Древнейший фолиант, написанный в бесчисленном множестве языков."
+	desc = "Древнейший фолиант, написанный на бесчисленном множестве языков."
 	ru_names = list(
-		NOMINATIVE = "книга Вавилона",
-		GENITIVE = "книги Вавилона",
-		DATIVE = "книге Вавилона",
-		ACCUSATIVE = "книгу Вавилона",
-		INSTRUMENTAL = "книгой Вавилона",
-		PREPOSITIONAL = "книге Вавилона"
+        NOMINATIVE = "Вавилонская книга",
+        GENITIVE = "Вавилонской книги",
+        DATIVE = "Вавилонской книге",
+        ACCUSATIVE = "Вавилонскую книгу",
+        INSTRUMENTAL = "Вавилонской книгой",
+        PREPOSITIONAL = "Вавилонской книге"
 	)
 	icon = 'icons/obj/library.dmi'
 	icon_state = "book1"
@@ -144,10 +144,10 @@
 /obj/item/book_of_babel/attack_self(mob/living/carbon/user)
 	if(HAS_TRAIT(user, TRAIT_NO_BABEL))
 		user.visible_message(
-			span_notice("[user] внезапно останавлива[pluralize_ru(user, "ет", "ют")]ся, недоумённо глядя на [declent_ru(GENITIVE)]."), 
+			span_notice("[user] внезапно останавлива[pluralize_ru(user, "ет", "ют")]ся, недоумённо глядя на [declent_ru(GENITIVE)]."),
 			span_warning("Вы понятия не имеете, что это такое и что с этим делать.")
 		)
-			
+
 		return
 
 	to_chat(user, "Вы упоённо пролистываете страницы книги, вбирая в себя знания всех существующих языков во Вселенной. К сожалению, [declent_ru(NOMINATIVE)] не выдерживает такого напора и рассыпается в прах. Ой...")
