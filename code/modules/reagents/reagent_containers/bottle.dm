@@ -427,14 +427,30 @@
 
 /obj/item/reagent_containers/glass/bottle/gbs
 	name = "GBS culture bottle"
-	desc = "A small bottle. Contains Gravitokinetic Bipotential SADS+ culture in synthblood medium."//Or simply - General BullShit
+	desc = "Маленькая бутылочка. Содержит вирус ГБС в среде синтетической крови."//Or simply - General BullShit
+	ru_names = list(
+    NOMINATIVE = "Бутылка с вирусом ГБС",
+    GENITIVE = "Бутылки с вирусом ГБС",
+    DATIVE = "Бутылке с вирусом ГБС",
+    ACCUSATIVE = "Бутылку с вирусом ГБС",
+    INSTRUMENTAL = "Бутылкой с вирусом ГБС",
+    PREPOSITIONAL = "Бутылке с вирусом ГБС"
+	)
 	icon_state = "round_bottle"
 	amount_per_transfer_from_this = 5
 	spawned_disease = /datum/disease/virus/gbs
 
 /obj/item/reagent_containers/glass/bottle/fake_gbs
 	name = "GBS culture bottle"
-	desc = "A small bottle. Contains Gravitokinetic Bipotential SADS- culture in synthblood medium."//Or simply - General BullShit
+	desc = "Маленькая бутылочка. Содержит вирус ГБС в среде синтетической крови."//Or simply - General BullShit
+	ru_names = list(
+    NOMINATIVE = "Бутылка с вирусом ГБС",
+    GENITIVE = "Бутылки с вирусом ГБС",
+    DATIVE = "Бутылке с вирусом ГБС",
+    ACCUSATIVE = "Бутылку с вирусом ГБС",
+    INSTRUMENTAL = "Бутылкой с вирусом ГБС",
+    PREPOSITIONAL = "Бутылке с вирусом ГБС"
+	)
 	icon_state = "round_bottle"
 	spawned_disease = /datum/disease/virus/fake_gbs
 

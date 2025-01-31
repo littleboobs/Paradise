@@ -4,7 +4,15 @@
 
 /obj/item/reagent_containers/dropper
 	name = "dropper"
-	desc = "A dropper. Transfers 5 units."
+	desc = "Капельница. Переносит 5 единиц."
+	ru_names = list(
+    NOMINATIVE = "капельница",
+    GENITIVE = "капельницы",
+    DATIVE = "капельнице",
+    ACCUSATIVE = "капельницу",
+    INSTRUMENTAL = "капельницей",
+    PREPOSITIONAL = "капельнице"
+	)
 	icon_state = "dropper"
 	item_state = "dropper"
 	amount_per_transfer_from_this = 5
@@ -109,7 +117,15 @@
 
 /obj/item/reagent_containers/dropper/precision
 	name = "pipette"
-	desc = "A high precision pippette. Holds 1 unit."
+	desc = "Высокоточная пипетка. Вмещает 1 единицу."
+	ru_names = list(
+    NOMINATIVE = "пипетка",
+    GENITIVE = "пипетки",
+    DATIVE = "пипетке",
+    ACCUSATIVE = "пипетку",
+    INSTRUMENTAL = "пипеткой",
+    PREPOSITIONAL = "пипетке"
+	)
 	icon_state = "pipette"
 	amount_per_transfer_from_this = 1
 	possible_transfer_amounts = list(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1)
@@ -126,7 +142,7 @@
 	if(!reagents.total_volume || !target.reagents)
 		return .
 	. |= ATTACK_CHAIN_SUCCESS
-	to_chat(user, span_warning("You stab [target] with [src]."))
+	to_chat(user, span_warning("Вы заражаете [target] с помощью [declent_ru(GENITIVE)]."))
 
 	var/list/injected = list()
 	for(var/datum/reagent/reagent as anything in reagents.reagent_list)
